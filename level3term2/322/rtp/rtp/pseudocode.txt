@@ -1,0 +1,70 @@
+A_output{
+
+if A is waiting for acknowledgement
+	drop packet
+
+create packet using current sequence, checksum and message. The acknowledgement field can be anything.
+
+A will be waiting for acknowledgement for current sequence.
+
+send the packet to layer 3 and start timer
+
+}
+
+A_input{
+if A was not expecting any acknowledgement
+	whatever A received was garbage and drop the packet
+
+if the packet checksum is wrong
+	drop the packet
+
+if the acknowledgement of sequence inside packet is not the acknowledgement of the sequence for which A was waiting
+	drop the packet
+
+receival successful
+
+stop the timer
+
+change A's sequence number
+
+A will not be waiting for acknowledgement anymore
+}
+
+A_timerinterrupt{
+if A is not waiting for acknowledgement
+	ignore
+
+resend the last packet sent by A
+
+start the timer
+}
+
+A_init{
+initially, A will not be expecting any acknowledgement from B.
+initialize A's sequence
+define a timeout
+}
+
+B_input{
+if checksum of received packet is wrong
+	send negative acknowledgement to layer 3
+
+if the sequence in packet is not the sequence that B was expecting
+	send negative acknowledgement to layer 3
+
+packet received at B
+
+send acknowledgement to layer 3
+
+send message to layer 5
+
+change B's current sequence number
+}
+
+B_init{
+B's initial sequence will be zero
+}
+
+
+
+

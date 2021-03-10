@@ -1,0 +1,200 @@
+-----  Stop and Wait Network Simulator Version 1.1 -------- 
+
+
+EVENT time: 187.057404,  type: 1, fromlayer3  entity: 1
+
+device B: inside B_output function
+device B: input bit string= 110000111000011100001110, generator= 1001, remainder= 1
+device B: data frame created
+device B: sending frame to layer 1
+device B: started timer for re-transmission if it goes off
+
+EVENT time: 194.422562,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: input bit string= 110000111000011100001110, generator= 1001, remainder= 1
+device A: piggy backing enabled
+device A: saving incoming frame sequence for sending later for ack
+device A: started timer. ack will be sent as TYPE_ACK if off
+device A: sending payload aaaaaaaaaaaaaaaaaaa to layer 3
+
+EVENT time: 281.721405,  type: 1, fromlayer3  entity: 0
+
+device A: inside A_output function
+device A: outstanding ack found
+device A: input bit string= 110001011000101100010110, generator= 1001, remainder= 1
+device A: piggy frame created
+device A: sending frame to layer 1
+          TOlayer1: frame being lost
+device A: started timer for re-transmission if it goes off
+Warning: attempt to start a timer that is already started
+
+EVENT time: 287.057404,  type: 0, timerinterrupt   entity: 1
+device B: inside B_timerinterrupt
+device B: resending last sent frame again
+          TOlayer1: frame being lost
+device B: started timer
+
+EVENT time: 294.422546,  type: 0, timerinterrupt   entity: 0
+device A: inside A_timerinterrupt
+device A: outstanding acknowledgment found
+device A: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device A: sending ack frame
+
+EVENT time: 303.667084,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device B: received acknowledgment
+device B: proper acknowledgment received
+device B: changing sending sequence
+device B: stopping timer
+device B: stop waiting for acknowledgment
+
+EVENT time: 307.979706,  type: 1, fromlayer3  entity: 1
+
+device B: inside B_output function
+device B: input bit string= 110001111000111100011110, generator= 1001, remainder= 110
+device B: data frame created
+device B: sending frame to layer 1
+          TOlayer1: frame being lost
+device B: started timer for re-transmission if it goes off
+
+EVENT time: 314.628967,  type: 1, fromlayer3  entity: 0
+
+device A: inside A_output function
+device A: new frame but A is waiting for acknowledgment
+device A: dropped frame in device A
+
+EVENT time: 400.482422,  type: 1, fromlayer3  entity: 1
+
+device B: inside B_output function
+device B: new frame but B is waiting for acknowledgment
+device B: dropped frame in device B
+
+EVENT time: 407.979706,  type: 0, timerinterrupt   entity: 1
+device B: inside B_timerinterrupt
+device B: resending last sent frame again
+device B: started timer
+
+EVENT time: 414.278107,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: input bit string= 110001111000111100011110, generator= 1001, remainder= 110
+device A: piggy backing enabled
+device A: saving incoming frame sequence for sending later for ack
+device A: started timer. ack will be sent as TYPE_ACK if off
+device A: sending payload ccccccccccccccccccc to layer 3
+
+EVENT time: 507.979706,  type: 0, timerinterrupt   entity: 1
+device B: inside B_timerinterrupt
+device B: resending last sent frame again
+device B: started timer
+
+EVENT time: 514.009338,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: input bit string= 110001111000111100011110, generator= 1001, remainder= 110
+device A: duplicate frame- sequence received
+device A: saving incoming frame sequence for sending later for ack
+device A: started timer. ack will be sent as TYPE_ACK if off
+Warning: attempt to start a timer that is already started
+
+EVENT time: 514.278076,  type: 0, timerinterrupt   entity: 0
+device A: inside A_timerinterrupt
+device A: outstanding acknowledgment found
+device A: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device A: sending ack frame
+          TOlayer1: frame being lost
+
+EVENT time: 607.979736,  type: 0, timerinterrupt   entity: 1
+device B: inside B_timerinterrupt
+device B: resending last sent frame again
+          TOlayer1: frame being corrupted
+device B: started timer
+
+EVENT time: 612.043335,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: input bit string= 101101011000111100011110, generator= 1001, remainder= 101
+device A: corrupted frame received
+device A: resending last sent frame
+          TOlayer1: frame being corrupted
+device A: resetting timer
+Warning: unable to cancel your timer. It wasn't running.
+
+EVENT time: 613.827271,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: input bit string= 110001011000101100010110, generator= 1001, remainder= 1
+device B: saving incoming frame sequence for sending later for ack
+device B: started timer. ack will be sent as TYPE_ACK if off
+Warning: attempt to start a timer that is already started
+device B: sending payload bbbbbbbbbbbbbbbbbbb to layer 3
+device B: received acknowledgment
+device B: sequence of acknowledgment is not the one expected
+device B: resending last sent frame
+device B: started timer
+Warning: attempt to start a timer that is already started
+
+EVENT time: 617.985840,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: input bit string= 110001111000111100011110, generator= 1001, remainder= 110
+device A: duplicate frame- sequence received
+device A: saving incoming frame sequence for sending later for ack
+device A: started timer. ack will be sent as TYPE_ACK if off
+Warning: attempt to start a timer that is already started
+
+EVENT time: 707.979736,  type: 0, timerinterrupt   entity: 1
+device B: inside B_timerinterrupt
+device B: outstanding acknowledgment found
+device B: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device B: sending ack frame
+          TOlayer1: frame being lost
+
+EVENT time: 712.043335,  type: 0, timerinterrupt   entity: 0
+device A: inside A_timerinterrupt
+device A: outstanding acknowledgment found
+device A: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device A: sending ack frame
+          TOlayer1: frame being corrupted
+
+EVENT time: 717.881287,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: input bit string= 101101010110011010000100, generator= 1001, remainder= 1
+device B: corrupted frame received
+device B: resending last sent frame
+device B: resetting timer
+Warning: unable to cancel your timer. It wasn't running.
+
+EVENT time: 719.756470,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: input bit string= 110001111000111100011110, generator= 1001, remainder= 110
+device A: duplicate frame- sequence received
+device A: saving incoming frame sequence for sending later for ack
+device A: started timer. ack will be sent as TYPE_ACK if off
+
+EVENT time: 817.881287,  type: 0, timerinterrupt   entity: 1
+device B: inside B_timerinterrupt
+device B: resending last sent frame again
+          TOlayer1: frame being lost
+device B: started timer
+
+EVENT time: 819.756470,  type: 0, timerinterrupt   entity: 0
+device A: inside A_timerinterrupt
+device A: outstanding acknowledgment found
+device A: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device A: sending ack frame
+
+EVENT time: 821.062866,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device B: received acknowledgment
+device B: proper acknowledgment received
+device B: changing sending sequence
+device B: stopping timer
+device B: stop waiting for acknowledgment
+ Simulator terminated at time 821.062866
+ after sending 5 pkts from layer3
+Device A stats: 
+Number of frames sent from A: 2
+Number of received frames in B: 1
+Number of dropped at A_output: 1
+Device B stats: 
+Number of frames sent from B: 3
+Number of received frames in A: 2
+Number of dropped at B_output: 1

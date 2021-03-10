@@ -1,0 +1,286 @@
+-----  Stop and Wait Network Simulator Version 1.1 -------- 
+
+
+EVENT time: 935.286987,  type: 1, fromlayer3  entity: 1
+
+device B: inside B_output function
+device B: input bit string= 110000111000011100001110, generator= 1001, remainder= 1
+device B: data frame created
+device B: sending frame to layer 1
+device B: started timer for re-transmission if it goes off
+
+EVENT time: 942.652161,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: input bit string= 110000111000011100001110, generator= 1001, remainder= 1
+device A: piggy backing disabled
+device A: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device A: sending ack frame
+          TOlayer1: frame being lost
+device A: sending payload aaaaaaaaaaaaaaaaaaa to layer 3
+
+EVENT time: 1335.286987,  type: 0, timerinterrupt   entity: 1
+device B: inside B_timerinterrupt
+device B: resending last sent frame again
+          TOlayer1: frame being corrupted
+device B: started timer
+
+EVENT time: 1337.437012,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: input bit string= 101101011000011100001110, generator= 1001, remainder= 11
+device A: corrupted frame received
+device A: input bit string= 101101011000011100001110, generator= 1001, remainder= 11
+device A: sending negative ack to layer 1
+          TOlayer1: frame being corrupted
+
+EVENT time: 1341.904297,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: input bit string= 101101011000011100001110, generator= 1001, remainder= 11
+device B: received acknowledgment
+device B: proper acknowledgment received
+device B: changing sending sequence
+device B: stopping timer
+device B: stop waiting for acknowledgment
+
+EVENT time: 1408.607056,  type: 1, fromlayer3  entity: 0
+
+device A: inside A_output function
+device A: input bit string= 110001011000101100010110, generator= 1001, remainder= 1
+device A: data frame created
+device A: sending frame to layer 1
+device A: started timer for re-transmission if it goes off
+
+EVENT time: 1413.879272,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: input bit string= 110001011000101100010110, generator= 1001, remainder= 1
+device B: piggy backing disabled
+device B: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device B: sending ack frame
+device B: sending payload bbbbbbbbbbbbbbbbbbb to layer 3
+
+EVENT time: 1418.081909,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device A: received acknowledgment
+device A: proper acknowledgment received
+device A: changing sending sequence
+device A: stopping timer
+device A: stop waiting for acknowledgment
+
+EVENT time: 1461.764771,  type: 1, fromlayer3  entity: 0
+
+device A: inside A_output function
+device A: input bit string= 110001111000111100011110, generator= 1001, remainder= 110
+device A: data frame created
+device A: sending frame to layer 1
+          TOlayer1: frame being corrupted
+device A: started timer for re-transmission if it goes off
+
+EVENT time: 1465.828369,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: input bit string= 101101011000111100011110, generator= 1001, remainder= 101
+device B: corrupted frame received
+device B: input bit string= 101101011000111100011110, generator= 1001, remainder= 101
+device B: sending negative ack to layer 1
+          TOlayer1: frame being corrupted
+
+EVENT time: 1467.612305,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: input bit string= 101101011000111100011110, generator= 1001, remainder= 101
+device A: received acknowledgment
+device A: sequence of acknowledgment is not the one expected
+device A: resending last sent frame
+device A: started timer
+Warning: attempt to start a timer that is already started
+
+EVENT time: 1471.770874,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: input bit string= 110001111000111100011110, generator= 1001, remainder= 110
+device B: piggy backing disabled
+device B: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device B: sending ack frame
+          TOlayer1: frame being lost
+device B: sending payload ccccccccccccccccccc to layer 3
+
+EVENT time: 1861.764771,  type: 0, timerinterrupt   entity: 0
+device A: inside A_timerinterrupt
+device A: resending last sent frame again
+          TOlayer1: frame being corrupted
+device A: started timer
+
+EVENT time: 1867.602783,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: input bit string= 101101011000111100011110, generator= 1001, remainder= 101
+device B: corrupted frame received
+device B: input bit string= 101101011000111100011110, generator= 1001, remainder= 101
+device B: sending negative ack to layer 1
+
+EVENT time: 1869.478027,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: input bit string= 101101011000111100011110, generator= 1001, remainder= 101
+device A: received acknowledgment
+device A: proper acknowledgment received
+device A: changing sending sequence
+device A: stopping timer
+device A: stop waiting for acknowledgment
+
+EVENT time: 2352.727295,  type: 1, fromlayer3  entity: 0
+
+device A: inside A_output function
+device A: input bit string= 110010011001001100100110, generator= 1001, remainder= 1
+device A: data frame created
+device A: sending frame to layer 1
+          TOlayer1: frame being lost
+device A: started timer for re-transmission if it goes off
+
+EVENT time: 2359.223389,  type: 1, fromlayer3  entity: 1
+
+device B: inside B_output function
+device B: input bit string= 110010111001011100101110, generator= 1001, remainder= 110
+device B: data frame created
+device B: sending frame to layer 1
+device B: started timer for re-transmission if it goes off
+
+EVENT time: 2364.497559,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: input bit string= 110010111001011100101110, generator= 1001, remainder= 110
+device A: piggy backing disabled
+device A: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device A: sending ack frame
+          TOlayer1: frame being lost
+device A: sending payload eeeeeeeeeeeeeeeeeee to layer 3
+
+EVENT time: 2752.727295,  type: 0, timerinterrupt   entity: 0
+device A: inside A_timerinterrupt
+device A: resending last sent frame again
+          TOlayer1: frame being lost
+device A: started timer
+
+EVENT time: 2759.223389,  type: 0, timerinterrupt   entity: 1
+device B: inside B_timerinterrupt
+device B: resending last sent frame again
+          TOlayer1: frame being corrupted
+device B: started timer
+
+EVENT time: 2765.473389,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: input bit string= 101101011001011100101110, generator= 1001, remainder= 110
+device A: duplicate frame- sequence received
+device A: piggy backing disabled
+device A: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device A: sending ack frame
+          TOlayer1: frame being corrupted
+
+EVENT time: 2770.292725,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: input bit string= 101101010110011010000100, generator= 1001, remainder= 1
+device B: corrupted frame received
+device B: resending last sent frame
+device B: resetting timer
+
+EVENT time: 2773.954590,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: input bit string= 110010111001011100101110, generator= 1001, remainder= 110
+device A: duplicate frame- sequence received
+device A: piggy backing disabled
+device A: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device A: sending ack frame
+          TOlayer1: frame being corrupted
+
+EVENT time: 2782.865479,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: input bit string= 101101010110011010000100, generator= 1001, remainder= 1
+device B: corrupted frame received
+device B: resending last sent frame
+          TOlayer1: frame being corrupted
+device B: resetting timer
+
+EVENT time: 2788.483154,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: input bit string= 101101011001011100101110, generator= 1001, remainder= 110
+device A: duplicate frame- sequence received
+device A: piggy backing disabled
+device A: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device A: sending ack frame
+          TOlayer1: frame being lost
+
+EVENT time: 3152.727295,  type: 0, timerinterrupt   entity: 0
+device A: inside A_timerinterrupt
+device A: resending last sent frame again
+          TOlayer1: frame being lost
+device A: started timer
+
+EVENT time: 3182.865479,  type: 0, timerinterrupt   entity: 1
+device B: inside B_timerinterrupt
+device B: resending last sent frame again
+          TOlayer1: frame being corrupted
+device B: started timer
+
+EVENT time: 3184.671875,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: input bit string= 101101011001011100101110, generator= 1001, remainder= 110
+device A: duplicate frame- sequence received
+device A: piggy backing disabled
+device A: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device A: sending ack frame
+          TOlayer1: frame being lost
+
+EVENT time: 3552.727295,  type: 0, timerinterrupt   entity: 0
+device A: inside A_timerinterrupt
+device A: resending last sent frame again
+device A: started timer
+
+EVENT time: 3555.744385,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: input bit string= 110010011001001100100110, generator= 1001, remainder= 1
+device B: piggy backing disabled
+device B: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device B: sending ack frame
+device B: sending payload ddddddddddddddddddd to layer 3
+
+EVENT time: 3560.498535,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device A: received acknowledgment
+device A: proper acknowledgment received
+device A: changing sending sequence
+device A: stopping timer
+device A: stop waiting for acknowledgment
+
+EVENT time: 3582.865479,  type: 0, timerinterrupt   entity: 1
+device B: inside B_timerinterrupt
+device B: resending last sent frame again
+          TOlayer1: frame being lost
+device B: started timer
+
+EVENT time: 3982.865479,  type: 0, timerinterrupt   entity: 1
+device B: inside B_timerinterrupt
+device B: resending last sent frame again
+device B: started timer
+
+EVENT time: 3988.849609,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: input bit string= 110010111001011100101110, generator= 1001, remainder= 110
+device A: duplicate frame- sequence received
+device A: piggy backing disabled
+device A: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device A: sending ack frame
+          TOlayer1: frame being corrupted
+
+EVENT time: 3996.711670,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: input bit string= 101010010110011010000100, generator= 1001, remainder= 110
+device B: received acknowledgment
+device B: proper acknowledgment received
+device B: changing sending sequence
+device B: stopping timer
+device B: stop waiting for acknowledgment
+ Simulator terminated at time 3996.711670
+ after sending 5 pkts from layer3
+Device A stats: 
+Number of frames sent from A: 3
+Number of received frames in B: 3
+Number of dropped at A_output: 0
+Device B stats: 
+Number of frames sent from B: 2
+Number of received frames in A: 2
+Number of dropped at B_output: 0

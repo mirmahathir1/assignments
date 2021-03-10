@@ -1,0 +1,17 @@
+# depslib dependency file v1.0
+1605609547 source:/mnt/604a8326-53f8-4a01-bed2-313518eb2318/LinuxData/Documents/Git/assignments/rtp/rtp/main.c
+	<stdio.h>
+	<stdlib.h>
+
+1605713099 source:/mnt/604a8326-53f8-4a01-bed2-313518eb2318/LinuxData/Documents/Git/assignments/rtp/rtp/rdt.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdbool.h>
+
+1605709259 source:/mnt/mmc-SC64G_0x841326e0-part1/LinuxData/Documents/Git/assignments/rtp/rtp/rdt.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdbool.h>
+

@@ -1,0 +1,17 @@
+# depslib dependency file v1.0
+1607155739 source:/mnt/604a8326-53f8-4a01-bed2-313518eb2318/LinuxData/Documents/Git/assignments/dll/dllcpp/main.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdbool.h>
+	<iostream>
+	<math.h>
+
+1607934719 source:/mnt/604a8326-53f8-4a01-bed2-313518eb2318/LinuxData/Documents/Git/assignments/level3term2/322/dll/dllcpp/main.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdbool.h>
+	<iostream>
+	<math.h>
+

@@ -1,0 +1,309 @@
+-----  Stop and Wait Network Simulator Version 1.1 -------- 
+
+
+EVENT time: 1870.573975,  type: 1, fromlayer3  entity: 1
+
+device B: inside B_output function
+device B: data frame created
+device B: sending frame to layer 1
+device B: started timer for re-transmission if it goes off
+
+EVENT time: 1877.939087,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: piggy backing enabled
+device A: saving incoming frame sequence for sending later for ack
+device A: started timer. ack will be sent as TYPE_ACK if off
+device A: sending payload aaaaaaaaaaaaaaaaaaa to layer 3
+
+EVENT time: 2370.573975,  type: 0, timerinterrupt   entity: 1
+device B: inside B_timerinterrupt
+device B: resending last sent frame again
+          TOlayer1: frame being corrupted
+device B: started timer
+
+EVENT time: 2377.938965,  type: 0, timerinterrupt   entity: 0
+device A: inside A_timerinterrupt
+device A: outstanding acknowledgment found
+device A: sending ack frame
+
+EVENT time: 2379.210205,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: corrupted frame received
+device A: sending negative ack to layer 1
+          TOlayer1: frame being lost
+
+EVENT time: 2387.183594,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: received acknowledgment
+device B: proper acknowledgment received
+device B: changing sending sequence
+device B: stopping timer
+device B: stop waiting for acknowledgment
+
+EVENT time: 2817.214111,  type: 1, fromlayer3  entity: 0
+
+device A: inside A_output function
+device A: data frame created
+device A: sending frame to layer 1
+device A: started timer for re-transmission if it goes off
+
+EVENT time: 2826.642578,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: saving incoming frame sequence for sending later for ack
+device B: started timer. ack will be sent as TYPE_ACK if off
+device B: sending payload bbbbbbbbbbbbbbbbbbb to layer 3
+
+EVENT time: 3317.214111,  type: 0, timerinterrupt   entity: 0
+device A: inside A_timerinterrupt
+device A: resending last sent frame again
+device A: started timer
+
+EVENT time: 3324.677002,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: duplicate frame- sequence received
+device B: saving incoming frame sequence for sending later for ack
+device B: started timer. ack will be sent as TYPE_ACK if off
+Warning: attempt to start a timer that is already started
+
+EVENT time: 3326.642578,  type: 0, timerinterrupt   entity: 1
+device B: inside B_timerinterrupt
+device B: outstanding acknowledgment found
+device B: sending ack frame
+          TOlayer1: frame being corrupted
+
+EVENT time: 3335.661133,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: corrupted frame received
+device A: resending last sent frame
+          TOlayer1: frame being corrupted
+device A: resetting timer
+
+EVENT time: 3338.027588,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: corrupted frame received
+device B: sending negative ack to layer 1
+          TOlayer1: frame being lost
+
+EVENT time: 3699.543213,  type: 1, fromlayer3  entity: 0
+
+device A: inside A_output function
+device A: new frame but A is waiting for acknowledgment
+device A: dropped frame in device A
+
+EVENT time: 3835.661133,  type: 0, timerinterrupt   entity: 0
+device A: inside A_timerinterrupt
+device A: resending last sent frame again
+device A: started timer
+
+EVENT time: 3839.819824,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: duplicate frame- sequence received
+device B: saving incoming frame sequence for sending later for ack
+device B: started timer. ack will be sent as TYPE_ACK if off
+
+EVENT time: 3877.653809,  type: 1, fromlayer3  entity: 1
+
+device B: inside B_output function
+device B: outstanding ack found
+device B: piggy frame created
+device B: sending frame to layer 1
+device B: started timer for re-transmission if it goes off
+Warning: attempt to start a timer that is already started
+
+EVENT time: 3880.284424,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: piggy backing enabled
+device A: saving incoming frame sequence for sending later for ack
+device A: started timer. ack will be sent as TYPE_ACK if off
+Warning: attempt to start a timer that is already started
+device A: sending payload ddddddddddddddddddd to layer 3
+device A: received acknowledgment
+device A: proper acknowledgment received
+device A: changing sending sequence
+device A: stopping timer
+device A: stop waiting for acknowledgment
+
+EVENT time: 3984.460938,  type: 1, fromlayer3  entity: 0
+
+device A: inside A_output function
+device A: outstanding ack found
+device A: piggy frame created
+device A: sending frame to layer 1
+device A: started timer for re-transmission if it goes off
+
+EVENT time: 3985.519287,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: saving incoming frame sequence for sending later for ack
+device B: started timer. ack will be sent as TYPE_ACK if off
+Warning: attempt to start a timer that is already started
+device B: sending payload eeeeeeeeeeeeeeeeeee to layer 3
+device B: received acknowledgment
+device B: proper acknowledgment received
+device B: changing sending sequence
+device B: stopping timer
+device B: stop waiting for acknowledgment
+
+EVENT time: 4484.460938,  type: 0, timerinterrupt   entity: 0
+device A: inside A_timerinterrupt
+device A: outstanding acknowledgment found
+device A: sending ack frame
+          TOlayer1: frame being lost
+
+EVENT time: 5930.960938,  type: 1, fromlayer3  entity: 0
+
+device A: inside A_output function
+device A: new frame but A is waiting for acknowledgment
+device A: dropped frame in device A
+
+EVENT time: 6802.487793,  type: 1, fromlayer3  entity: 0
+
+device A: inside A_output function
+device A: new frame but A is waiting for acknowledgment
+device A: dropped frame in device A
+
+EVENT time: 7819.958008,  type: 1, fromlayer3  entity: 0
+
+device A: inside A_output function
+device A: new frame but A is waiting for acknowledgment
+device A: dropped frame in device A
+
+EVENT time: 8205.960938,  type: 1, fromlayer3  entity: 1
+
+device B: inside B_output function
+device B: outstanding ack found
+device B: piggy frame created
+device B: sending frame to layer 1
+          TOlayer1: frame being lost
+device B: started timer for re-transmission if it goes off
+
+EVENT time: 8705.960938,  type: 0, timerinterrupt   entity: 1
+device B: inside B_timerinterrupt
+device B: outstanding acknowledgment found
+device B: sending ack frame
+          TOlayer1: frame being corrupted
+
+EVENT time: 8710.780273,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: corrupted frame received
+device A: resending last sent frame
+device A: resetting timer
+Warning: unable to cancel your timer. It wasn't running.
+
+EVENT time: 8714.442383,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: duplicate frame- sequence received
+device B: saving incoming frame sequence for sending later for ack
+device B: started timer. ack will be sent as TYPE_ACK if off
+device B: received acknowledgment
+device B: sequence of acknowledgment is not the one expected
+device B: resending last sent frame
+          TOlayer1: frame being corrupted
+device B: started timer
+Warning: attempt to start a timer that is already started
+
+EVENT time: 8723.353516,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: corrupted frame received
+device A: resending last sent frame
+          TOlayer1: frame being corrupted
+device A: resetting timer
+
+EVENT time: 8728.970703,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: corrupted frame received
+device B: resending last sent frame
+          TOlayer1: frame being corrupted
+device B: resetting timer
+
+EVENT time: 8731.002930,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: corrupted frame received
+device A: resending last sent frame
+          TOlayer1: frame being corrupted
+device A: resetting timer
+
+EVENT time: 8738.746094,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: corrupted frame received
+device B: resending last sent frame
+device B: resetting timer
+
+EVENT time: 8745.437500,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: piggy backing enabled
+device A: saving incoming frame sequence for sending later for ack
+device A: started timer. ack will be sent as TYPE_ACK if off
+Warning: attempt to start a timer that is already started
+device A: sending payload iiiiiiiiiiiiiiiiiii to layer 3
+device A: received acknowledgment
+device A: proper acknowledgment received
+device A: changing sending sequence
+device A: stopping timer
+device A: stop waiting for acknowledgment
+
+EVENT time: 9238.746094,  type: 0, timerinterrupt   entity: 1
+device B: inside B_timerinterrupt
+device B: outstanding acknowledgment found
+device B: sending ack frame
+          TOlayer1: frame being corrupted
+
+EVENT time: 9244.218750,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: corrupted frame received
+device A: sending negative ack to layer 1
+
+EVENT time: 9249.605469,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: received acknowledgment
+device B: proper acknowledgment received
+device B: changing sending sequence
+device B: stopping timer
+Warning: unable to cancel your timer. It wasn't running.
+device B: stop waiting for acknowledgment
+
+EVENT time: 9372.613281,  type: 1, fromlayer3  entity: 0
+
+device A: inside A_output function
+device A: outstanding ack found
+device A: piggy frame created
+device A: sending frame to layer 1
+device A: started timer for re-transmission if it goes off
+
+EVENT time: 9374.317383,  type: 2, fromlayer1  entity: 1
+device B: inside B_input
+device B: saving incoming frame sequence for sending later for ack
+device B: started timer. ack will be sent as TYPE_ACK if off
+device B: sending payload jjjjjjjjjjjjjjjjjjj to layer 3
+device B: received acknowledgment
+device B: B wasn't expecting any acknowledgment
+device B: dropped frame in device B
+
+EVENT time: 9872.613281,  type: 0, timerinterrupt   entity: 0
+device A: inside A_timerinterrupt
+device A: outstanding acknowledgment found
+device A: sending ack frame
+          TOlayer1: frame being lost
+
+EVENT time: 9874.317383,  type: 0, timerinterrupt   entity: 1
+device B: inside B_timerinterrupt
+device B: outstanding acknowledgment found
+device B: sending ack frame
+
+EVENT time: 9882.275391,  type: 2, fromlayer1  entity: 0
+device A: inside A_input
+device A: received acknowledgment
+device A: proper acknowledgment received
+device A: changing sending sequence
+device A: stopping timer
+Warning: unable to cancel your timer. It wasn't running.
+device A: stop waiting for acknowledgment
+ Simulator terminated at time 9882.275391
+ after sending 10 pkts from layer3
+Device A stats: 
+Number of frames sent from A: 7
+Number of received frames in B: 3
+Number of dropped at A_output: 4
+Device B stats: 
+Number of frames sent from B: 3
+Number of received frames in A: 3
+Number of dropped at B_output: 0
