@@ -67,47 +67,6 @@ def matrix_multiplication(M, N):
                 R[i][j] = R[i][j].__xor__(M[i][k].gf_multiply_modular(N[k][j], BitVector(bitstring='100011011'), 8))
     return R
 
-round_keys=[]
-
-round_keys.append(key_bitvector)
-
-for i in range(1,11):
-    round_keys.append(round_key_generator(round_keys[i-1]))
-
-# for round_key in round_keys:
-#     print(round_key.get_hex_string_from_bitvector())
-
-
-# round 0
-state_matrix_round0 = plain_text_bitvector.__xor__(round_keys[0])
-
-# print(state_matrix_round0.get_hex_string_from_bitvector())
-
-for i in range(16):
-    state_matrix_round0[i*8:(i+1)*8]= BitVector(intVal=Sbox[state_matrix_round0[i*8:(i+1)*8].intValue()], size=8)
-
-print("Rount 0 result: ",state_matrix_round0.get_hex_string_from_bitvector())
-
-chunks, chunk_size = len(state_matrix_round0), int(len(state_matrix_round0)/16)
-# print(chunk_size)
-state_matrix0 = [state_matrix_round0[i:i+chunk_size] for i in range(0, chunks, chunk_size)]
-
-state_matrix_transformed = [[],[],[],[]]
-
-for i in range(16):
-    state_matrix_transformed[i%4].append(state_matrix0[i])
-
-for i in range(1,4):
-    state_matrix_transformed[i] = state_matrix_transformed[i][i:] + state_matrix_transformed[i][:i]
-
-
-
-# for row in range(4):
-#     for col in range(4):
-#         print(state_matrix_transformed[row][col].get_hex_string_from_bitvector()+" ",end='')
-#     print("")
-
-
 mix_column_matrix=[[],[],[],[]]
 for i in range(16):
     mix_column_matrix[i%4].append(BitVector(intVal=1,size=8))
@@ -120,36 +79,108 @@ mix_column_matrix[1][2] = BitVector(intVal=3,size=8)
 mix_column_matrix[2][3] = BitVector(intVal=3,size=8)
 mix_column_matrix[3][0] = BitVector(intVal=3,size=8)
 
-# for row in range(4):
-#     for col in range(4):
-#         print(mix_column_matrix[row][col].get_hex_string_from_bitvector()+" ",end='')
-#     print("")
+round_keys=[]
+
+round_keys.append(key_bitvector)
+
+for i in range(1,11):
+    round_keys.append(round_key_generator(round_keys[i-1]))
+
+
+# round 0
+state_matrix_round0 = plain_text_bitvector.__xor__(round_keys[0])
+
+print("Rount 0 result: ",state_matrix_round0.get_hex_string_from_bitvector())
+
+state_matrix_round = state_matrix_round0
+
+for round in range(1,10):
+
+    #SUBSTITUTE
+    for i in range(16):
+        state_matrix_round[i * 8:(i + 1) * 8] = BitVector(intVal=Sbox[state_matrix_round[i * 8:(i + 1) * 8].intValue()], size=8)
+
+    #print("AFTER SUBSTITUTE in round ",round,": ",state_matrix_round.get_hex_string_from_bitvector())
+
+    chunks, chunk_size = len(state_matrix_round), int(len(state_matrix_round)/16)
+
+    state_matrix = [state_matrix_round[i:i+chunk_size] for i in range(0, chunks, chunk_size)]
+
+    state_matrix_transformed = [[],[],[],[]]
+
+    for i in range(16):
+        state_matrix_transformed[i%4].append(state_matrix[i])
+
+    # shift rows
+    for i in range(1,4):
+        state_matrix_transformed[i] = state_matrix_transformed[i][i:] + state_matrix_transformed[i][:i]
+
+    print("AFTER SHIFT ROW IN ROUND ",round,": ")
+    for row in range(4):
+        for col in range(4):
+            print(state_matrix_transformed[row][col].get_hex_string_from_bitvector(),end='')
+        print("")
+
+    # mix column multiplication
+    multiplied_matrix = matrix_multiplication(mix_column_matrix,state_matrix_transformed)
+
+    print("AFTER MIXCOLUMN IN ROUND ", round, ": ")
+    for row in range(4):
+        for col in range(4):
+            print(multiplied_matrix[row][col].get_hex_string_from_bitvector(), end='')
+        print("")
+
+    multiplied_matrix_lineared = ""
+
+    for col in range(4):
+        for row in range(4):
+            multiplied_matrix_lineared+=multiplied_matrix[row][col].get_hex_string_from_bitvector()
 
 
 
+    # xor with round key
+    state_matrix_round = BitVector(hexstring=multiplied_matrix_lineared).__xor__(round_keys[round])
 
-multiplied_matrix = matrix_multiplication(mix_column_matrix,state_matrix_transformed)
+    print("Round ",round," result:",state_matrix_round.get_hex_string_from_bitvector())
 
-# for row in range(4):
-#     for col in range(4):
-#         print(multiplied_matrix[row][col].get_hex_string_from_bitvector()+" ",end='')
-#     print("")
 
-print("-"*40)
+#round 10
+
+#SUBSTITUTE
+for i in range(16):
+    state_matrix_round[i * 8:(i + 1) * 8] = BitVector(intVal=Sbox[state_matrix_round[i * 8:(i + 1) * 8].intValue()], size=8)
+
+print("AFTER SUBSTITUTE in round ",10,": ",state_matrix_round.get_hex_string_from_bitvector())
+
+chunks, chunk_size = len(state_matrix_round), int(len(state_matrix_round)/16)
+
+state_matrix = [state_matrix_round[i:i+chunk_size] for i in range(0, chunks, chunk_size)]
+
+state_matrix_transformed = [[],[],[],[]]
+
+for i in range(16):
+    state_matrix_transformed[i%4].append(state_matrix[i])
+
+# shift rows
+for i in range(1,4):
+    state_matrix_transformed[i] = state_matrix_transformed[i][i:] + state_matrix_transformed[i][:i]
+
+print("AFTER SHIFT ROW IN ROUND ",10,": ")
+for row in range(4):
+    for col in range(4):
+        print(state_matrix_transformed[row][col].get_hex_string_from_bitvector(),end='')
+    print("")
 
 multiplied_matrix_lineared = ""
 
 for col in range(4):
     for row in range(4):
-        multiplied_matrix_lineared+=multiplied_matrix[row][col].get_hex_string_from_bitvector()
+        multiplied_matrix_lineared+=state_matrix_transformed[row][col].get_hex_string_from_bitvector()
 
 
-cypher_text = BitVector(hexstring=multiplied_matrix_lineared).__xor__(round_keys[1])
+    # xor with round key
+state_matrix_round = BitVector(hexstring=multiplied_matrix_lineared).__xor__(round_keys[10])
 
-print("Round 1 result: ",cypher_text.get_hex_string_from_bitvector())
-
-
-
-
+print("Round ",10," result:",state_matrix_round.get_hex_string_from_bitvector())
 
 
