@@ -1,5 +1,5 @@
 from BitVector import *
-
+import time
 Sbox = (
     0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
     0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0, 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0,
@@ -38,13 +38,12 @@ InvSbox = (
     0x17, 0x2B, 0x04, 0x7E, 0xBA, 0x77, 0xD6, 0x26, 0xE1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0C, 0x7D,
 )
 
-round_constant=BitVector(hexstring='01')
-
 
 def w(word,index):
     return word[index * 8 * 4:(index + 1) * 8 * 4]
 
-def g(word):
+
+def g(word,round_constant):
     left_shifted_word = word.__lshift__(8)
 
     left_shifted_word[0:8]=BitVector(intVal=Sbox[left_shifted_word[0:8].intValue()],size=8).__xor__(round_constant)
@@ -54,28 +53,32 @@ def g(word):
     return left_shifted_word
 
 
-def round_key_generator(key):
-    w4 = w(key,0).__xor__(g(w(key,3)))
+def round_key_generator(key,round_constant):
+    w4 = w(key,0).__xor__(g(w(key,3),round_constant))
     w5 = w4.__xor__(w(key,1))
     w6 = w5.__xor__(w(key,2))
     w7 = w6.__xor__(w(key,3))
-
-    global round_constant
-    round_constant = round_constant.gf_multiply_modular(BitVector(hexstring="02"), BitVector(bitstring='100011011'), 8)
-
     return BitVector(hexstring=w4.get_hex_string_from_bitvector()+w5.get_hex_string_from_bitvector()+w6.get_hex_string_from_bitvector()+w7.get_hex_string_from_bitvector())
 
-def generate_all_round_keys(key_bitvector):
+
+def generate_all_round_keys(key):
+    key = key.ljust(16, chr(0))[:16]
+    key_bitvector = BitVector(textstring=key)
+
+    round_key_start_time = time.time()
+
+    round_constant=BitVector(hexstring='01')
+
     round_keys = []
 
     round_keys.append(key_bitvector)
 
     for i in range(1, 11):
-        round_keys.append(round_key_generator(round_keys[i - 1]))
+        round_keys.append(round_key_generator(round_keys[i - 1],round_constant))
 
-    # print("LIST OF ROUND KEYS:")
-    # for i in range(0,11):
-    #     print("ROUND ",i,round_keys[i].get_hex_string_from_bitvector())
+        round_constant = round_constant.gf_multiply_modular(BitVector(hexstring="02"), BitVector(bitstring='100011011'),8)
+
+    print("Key Scheduling: %s seconds" % (time.time() - round_key_start_time))
 
     return round_keys
 
@@ -114,8 +117,6 @@ def substitute(matrix):
     return matrix
 
 def inverse_substitute(matrix):
-    # for i in range(16):
-    #     matrix[i * 8:(i + 1) * 8] = BitVector(intVal=InvSbox[matrix[i * 8:(i + 1) * 8].intValue()], size=8)
     for row in range(4):
         for col in range(4):
             matrix[row][col] = BitVector(intVal=InvSbox[matrix[row][col].intValue()],size=8)
@@ -124,9 +125,7 @@ def inverse_substitute(matrix):
 
 def matrix1Dto2D(array):
     chunks, chunk_size = len(array), int(len(array) / 16)
-
     array = [array[i:i + chunk_size] for i in range(0, chunks, chunk_size)]
-
     matrix = [[], [], [], []]
 
     for i in range(16):
@@ -141,4 +140,120 @@ def matrix2Dto1D(matrix):
             multiplied_matrix_lineared += matrix[row][col].get_hex_string_from_bitvector()
 
     return multiplied_matrix_lineared
+
+
+
+def encrypt(plain_text,round_keys):
+    bytes_to_be_encrypted = plain_text
+    bytes_to_be_encrypted += bytes('\0'.encode()) * 16
+    bytes_to_be_encrypted = bytes_to_be_encrypted[:16]
+    plain_text_bitvector = BitVector(rawbytes=bytes_to_be_encrypted)
+
+    # ROUND 0
+
+    state_matrix_round0 = plain_text_bitvector.__xor__(round_keys[0])
+
+    state_matrix_round = state_matrix_round0
+
+    # ROUND 1-9
+    for round in range(1,10):
+        # SUBSTITUTE
+        state_matrix_round = substitute(state_matrix_round)
+
+        state_matrix_transformed = matrix1Dto2D(state_matrix_round)
+
+        # SHIFT ROWS
+        for i in range(1,4):
+            state_matrix_transformed[i] = state_matrix_transformed[i][i:] + state_matrix_transformed[i][:i]
+
+        # MIX COLUMN
+        multiplied_matrix = matrix_multiplication(Mixer,state_matrix_transformed)
+
+        multiplied_matrix_lineared = matrix2Dto1D(multiplied_matrix)
+
+        # ADD ROUND KEY
+        state_matrix_round = BitVector(hexstring=multiplied_matrix_lineared).__xor__(round_keys[round])
+
+    # ROUND 10
+
+    # SUBSTITUTE
+    state_matrix_round = substitute(state_matrix_round)
+
+    state_matrix_transformed = matrix1Dto2D(state_matrix_round)
+
+    # SHIFT ROWs
+    for i in range(1,4):
+        state_matrix_transformed[i] = state_matrix_transformed[i][i:] + state_matrix_transformed[i][:i]
+
+    multiplied_matrix_lineared = matrix2Dto1D(state_matrix_transformed)
+
+    # ADD ROUND KEY
+    state_matrix_round = BitVector(hexstring=multiplied_matrix_lineared).__xor__(round_keys[10])
+
+    return state_matrix_round.get_hex_string_from_bitvector()
+
+
+
+def frombits(bits):
+    chars = []
+    for b in range(int(len(bits) / 8)):
+        byte = bits[b * 8:(b + 1) * 8]
+        chars.append(chr(int(''.join([str(bit) for bit in byte]), 2)))
+    return ''.join(chars)
+
+def decrypt(cypher_text,round_keys):
+
+    bytes_to_be_encrypted = cypher_text
+
+    hex_string_to_be_converted = ""
+    for i in bytes_to_be_encrypted:
+        hex_string_to_be_converted += chr(i)
+
+    cypher_text_bitvector = BitVector(hexstring=hex_string_to_be_converted)
+
+    # ROUND 0
+    state_matrix_round0 = cypher_text_bitvector.__xor__(round_keys[10])
+
+    state_matrix_round = state_matrix_round0
+
+    for round in range(1,10):
+
+        state_matrix_transformed = matrix1Dto2D(state_matrix_round)
+
+        # INVERSE SHIFT ROWS
+        for i in range(1, 4):
+            state_matrix_transformed[i] = state_matrix_transformed[i][-i:] + state_matrix_transformed[i][:-i]
+
+        # INVERSE SUBSTITUTE
+        state_matrix_transformed = inverse_substitute(state_matrix_transformed)
+
+        state_matrix_transformed_lineared = matrix2Dto1D(state_matrix_transformed)
+
+        # ADD ROUND KEY
+        round_key_added = BitVector(hexstring=state_matrix_transformed_lineared).__xor__(round_keys[10-round])
+
+        # INVERSE MIX COLUMN
+        round_key_added = matrix1Dto2D(round_key_added)
+        multiplied = matrix_multiplication(InvMixer,round_key_added)
+
+        state_matrix_round = BitVector(hexstring=matrix2Dto1D(multiplied))
+
+
+    # ROUND 10
+
+    state_matrix_transformed = matrix1Dto2D(state_matrix_round)
+
+    # INVERSE SHIFT ROWS
+    for i in range(1, 4):
+        state_matrix_transformed[i] = state_matrix_transformed[i][-i:] + state_matrix_transformed[i][:-i]
+
+    # INVERSE SUBSTITUTE
+    state_matrix_transformed = inverse_substitute(state_matrix_transformed)
+
+    state_matrix_transformed_lineared = matrix2Dto1D(state_matrix_transformed)
+
+    # ADD ROUND KEY
+    round_key_added = BitVector(hexstring=state_matrix_transformed_lineared).__xor__(round_keys[0])
+
+    return round_key_added
 
