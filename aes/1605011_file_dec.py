@@ -1,5 +1,5 @@
 from AES import *
-file_name = "Assignment 1.pdf"
+file_name = "sample.txt"
 in_file = open("encoded"+file_name, "rb")
 out_file = open("decoded"+file_name, "wb")
 
