@@ -1,1 +1,1 @@
-g++ main.cpp -lGL -lGLU -lglut && ./a.out
+g++ 1605011_1.cpp -lGL -lGLU -lglut && ./a.out
