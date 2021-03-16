@@ -66,11 +66,20 @@ public:
 		this->x = this->x * cosineOfDegree + crossOfUandAxis.x * sineOfDegree;
 		this->y = this->y * cosineOfDegree + crossOfUandAxis.y * sineOfDegree;
 		this->z = this->z * cosineOfDegree + crossOfUandAxis.z * sineOfDegree;
+		normalize();
 	}
 
 	static Vector crossProduct(Vector a, Vector b)
 	{
 		return Vector((a.y * b.z) - (b.y * a.z), (b.x * a.z) - (a.x * b.z), (a.x * b.y) - (a.y * b.x));
+	}
+
+	void normalize()
+	{
+		GLdouble denominator = sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
+		this->x /= denominator;
+		this->y /= denominator;
+		this->z /= denominator;
 	}
 };
 
@@ -94,6 +103,28 @@ public:
 	{
 		cout << "point: x = " << x << ", y = " << y << ", z = " << z << endl;
 	}
+	Point()
+	{
+	}
+	static Point crossProduct(Vector a, Point b)
+	{
+		return Point((a.y * b.z) - (b.y * a.z), (b.x * a.z) - (a.x * b.z), (a.x * b.y) - (a.y * b.x));
+	}
+
+	void rotate(Vector rotationAxis, GLdouble degree)
+	{
+		GLdouble x;
+		GLdouble y;
+		GLdouble z;
+
+		Point crossOfUandAxis = Point::crossProduct(rotationAxis, *(this));
+
+		GLdouble cosineOfDegree = cos((double)degreeToRadian(degree));
+		GLdouble sineOfDegree = sin((double)degreeToRadian(degree));
+		this->x = this->x * cosineOfDegree + crossOfUandAxis.x * sineOfDegree;
+		this->y = this->y * cosineOfDegree + crossOfUandAxis.y * sineOfDegree;
+		this->z = this->z * cosineOfDegree + crossOfUandAxis.z * sineOfDegree;
+	}
 };
 
 //MY OWN CONTROL VARIABLES
@@ -103,9 +134,330 @@ Vector lookVector(0, -1, 0);
 Vector rightVector(-1, 0, 0);
 int movementSpeed = 3;
 
+Point cylinderPoints[100][100];
+Vector cylinderVector(1, 0, 0);
+int cylinderRadius = 10;
+int cylinderHeight = 100;
+int cylinderSlices = 100;
+int cylinderStacks = 20;
 
+Point gunshots[100];
+int gunshotCount = 0;
+int gunDegreeRange = 30;
+int gunCurrentDegreeY = 0;
+int gunCurrentDegreeZ = 0;
 
-#include "shapes.h"
+void drawAxes()
+{
+	if (drawaxes == 1)
+	{
+		glColor3f(1.0, 1.0, 1.0);
+		glBegin(GL_LINES);
+		{
+			glVertex3f(100, 0, 0);
+			glVertex3f(-100, 0, 0);
+
+			glVertex3f(0, -100, 0);
+			glVertex3f(0, 100, 0);
+
+			glVertex3f(0, 0, 100);
+			glVertex3f(0, 0, -100);
+		}
+		glEnd();
+	}
+}
+
+void drawGrid()
+{
+	int i;
+	if (drawgrid == 1)
+	{
+		glColor3f(0.6, 0.6, 0.6); //grey
+		glBegin(GL_LINES);
+		{
+			for (i = -8; i <= 8; i++)
+			{
+
+				if (i == 0)
+					continue; //SKIP the MAIN axes
+
+				//lines parallel to Y-axis
+				glVertex3f(i * 10, -90, 0);
+				glVertex3f(i * 10, 90, 0);
+
+				//lines parallel to X-axis
+				glVertex3f(-90, i * 10, 0);
+				glVertex3f(90, i * 10, 0);
+			}
+		}
+		glEnd();
+	}
+}
+
+void getCylinderPoints()
+{
+	
+	int i, j;
+	double h, r;
+	//generate points
+	for (i = 0; i <= cylinderStacks; i++)
+	{
+		// h=radius*sin(((double)i/(double)stacks)*(pi/2));
+		h = i * (cylinderHeight / cylinderStacks);
+		//r=radius*cos(((double)i/(double)stacks)*(pi/2));
+		r = cylinderRadius;
+		for (j = 0; j <= cylinderSlices; j++)
+		{
+			cylinderPoints[i][j].y = r * cos(((double)j / (double)cylinderSlices) * 2 * pi);
+			cylinderPoints[i][j].z = r * sin(((double)j / (double)cylinderSlices) * 2 * pi);
+			cylinderPoints[i][j].x = h;
+		}
+	}
+}
+
+void drawCylinder()
+{
+	int i, j;
+	for (i = 0; i < cylinderStacks; i++)
+	{
+		// glColor3f((double)i/(double)stacks,(double)i/(double)stacks,(double)i/(double)stacks);
+		// glColor3f(0,0,0);
+		glColor3f(i % 2, i % 2, i % 2);
+		for (j = 0; j < cylinderSlices; j++)
+		{
+			glBegin(GL_QUADS);
+			{
+				//upper hemisphere
+				glVertex3f(cylinderPoints[i][j].x, cylinderPoints[i][j].y, cylinderPoints[i][j].z);
+				glVertex3f(cylinderPoints[i][j + 1].x, cylinderPoints[i][j + 1].y, cylinderPoints[i][j + 1].z);
+				glVertex3f(cylinderPoints[i + 1][j + 1].x, cylinderPoints[i + 1][j + 1].y, cylinderPoints[i + 1][j + 1].z);
+				glVertex3f(cylinderPoints[i + 1][j].x, cylinderPoints[i + 1][j].y, cylinderPoints[i + 1][j].z);
+			}
+			glEnd();
+		}
+	}
+}
+
+void drawCylinder(double radius, double height, int slices, int stacks)
+{
+	//struct point points[100][100];
+
+	Point points[100][100];
+
+	int i, j;
+	double h, r;
+	//generate points
+	for (i = 0; i <= stacks; i++)
+	{
+		// h=radius*sin(((double)i/(double)stacks)*(pi/2));
+		h = i * (height / stacks);
+		//r=radius*cos(((double)i/(double)stacks)*(pi/2));
+		r = radius;
+		for (j = 0; j <= slices; j++)
+		{
+			points[i][j].y = r * cos(((double)j / (double)slices) * 2 * pi);
+			points[i][j].z = r * sin(((double)j / (double)slices) * 2 * pi);
+			points[i][j].x = h;
+
+			// points[i][j].rotate(Vector(0,1,0),45);
+		}
+	}
+	//draw quads using generated points
+	for (i = 0; i < stacks; i++)
+	{
+		// glColor3f((double)i/(double)stacks,(double)i/(double)stacks,(double)i/(double)stacks);
+		// glColor3f(0,0,0);
+		glColor3f(i % 2, i % 2, i % 2);
+		for (j = 0; j < slices; j++)
+		{
+			glBegin(GL_QUADS);
+			{
+				//upper hemisphere
+				glVertex3f(points[i][j].x, points[i][j].y, points[i][j].z);
+				glVertex3f(points[i][j + 1].x, points[i][j + 1].y, points[i][j + 1].z);
+				glVertex3f(points[i + 1][j + 1].x, points[i + 1][j + 1].y, points[i + 1][j + 1].z);
+				glVertex3f(points[i + 1][j].x, points[i + 1][j].y, points[i + 1][j].z);
+				//lower hemisphere
+				// glVertex3f(points[i][j].x, points[i][j].y, -points[i][j].z);
+				// glVertex3f(points[i][j + 1].x, points[i][j + 1].y, -points[i][j + 1].z);
+				// glVertex3f(points[i + 1][j + 1].x, points[i + 1][j + 1].y, -points[i + 1][j + 1].z);
+				// glVertex3f(points[i + 1][j].x, points[i + 1][j].y, -points[i + 1][j].z);
+			}
+			glEnd();
+		}
+	}
+}
+
+void drawSquare(Point upperRight, Point lowerRight, Point upperLeft, Point lowerLeft)
+{
+	glColor3f(0.5,0.5,0.5);
+	glBegin(GL_QUADS);
+	{
+		glVertex3f(upperRight.x, upperRight.y, upperRight.z);
+		glVertex3f(lowerRight.x, lowerRight.y, lowerRight.z);
+		glVertex3f(lowerLeft.x, lowerLeft.y, lowerLeft.z);
+		glVertex3f(upperLeft.x, upperLeft.y, upperLeft.z);
+	}
+	glEnd();
+}
+
+void drawGunShot(int y, int z){
+	glColor3f(1,0.5,0.5);
+	glBegin(GL_QUADS);
+	{
+		glVertex3f(200, y+3, z+3);
+		glVertex3f(200, y+3, z-3);
+		glVertex3f(200, y-3, z-3);
+		glVertex3f(200, y-3, z+3);
+	}
+	glEnd();
+}
+
+void drawGunShotAll(){
+	for(int i = 0 ; i < gunshotCount; i++){
+		drawGunShot(gunshots[i].y,gunshots[i].z);
+	}
+}
+
+void drawSquare(double a)
+{
+	//glColor3f(1.0,0.0,0.0);
+
+	//gl begin er moddhe bole dite hobe ami ki draw korte chai
+	//line draw korte gl_lines bolte hobe
+	// tarpor 4 vertext bolte hobe ja diye quadrangle draw korbe.
+	// shudhu boundary na, vitorer shob draw korbe
+	glBegin(GL_QUADS);
+	{
+		glVertex3f(a, a, 2);
+		glVertex3f(a, -a, 2);
+		glVertex3f(-a, -a, 2);
+		glVertex3f(-a, a, 2);
+	}
+	glEnd();
+}
+
+void drawCircle(double radius, int segments)
+{
+	int i;
+	struct point points[100];
+	glColor3f(0.7, 0.7, 0.7);
+	//generate points
+	for (i = 0; i <= segments; i++)
+	{
+		points[i].x = radius * cos(((double)i / (double)segments) * 2 * pi); //sin and cos functions take arguments as radians
+		points[i].y = radius * sin(((double)i / (double)segments) * 2 * pi);
+	}
+	//draw segments using generated points
+	for (i = 0; i < segments; i++)
+	{
+		glBegin(GL_LINES);
+		{
+			glVertex3f(points[i].x, points[i].y, 0);
+			glVertex3f(points[i + 1].x, points[i + 1].y, 0);
+		}
+		glEnd();
+	}
+}
+
+void drawCone(double radius, double height, int segments)
+{
+	int i;
+	double shade;
+	struct point points[100];
+	//generate points
+	for (i = 0; i <= segments; i++)
+	{
+		points[i].x = radius * cos(((double)i / (double)segments) * 2 * pi);
+		points[i].y = radius * sin(((double)i / (double)segments) * 2 * pi);
+	}
+	//draw triangles using generated points
+	for (i = 0; i < segments; i++)
+	{
+		//create shading effect
+		if (i < segments / 2)
+			shade = 2 * (double)i / (double)segments;
+		else
+			shade = 2 * (1.0 - (double)i / (double)segments);
+		glColor3f(shade, shade, shade);
+
+		glBegin(GL_TRIANGLES);
+		{
+			glVertex3f(0, 0, height);
+			glVertex3f(points[i].x, points[i].y, 0);
+			glVertex3f(points[i + 1].x, points[i + 1].y, 0);
+		}
+		glEnd();
+	}
+}
+
+void drawSphere(double radius, int slices, int stacks)
+{
+	struct point points[100][100];
+	int i, j;
+	double h, r;
+	//generate points
+	for (i = 0; i <= stacks; i++)
+	{
+		h = radius * sin(((double)i / (double)stacks) * (pi / 2));
+		r = radius * cos(((double)i / (double)stacks) * (pi / 2));
+		for (j = 0; j <= slices; j++)
+		{
+			points[i][j].x = r * cos(((double)j / (double)slices) * 2 * pi);
+			points[i][j].y = r * sin(((double)j / (double)slices) * 2 * pi);
+			points[i][j].z = h;
+		}
+	}
+	//draw quads using generated points
+	for (i = 0; i < stacks; i++)
+	{
+		// glColor3f((double)i/(double)stacks,(double)i/(double)stacks,(double)i/(double)stacks);
+		glColor3f(i % 2, i % 2, i % 2);
+		for (j = 0; j < slices; j++)
+		{
+			glBegin(GL_QUADS);
+			{
+				//upper hemisphere
+				glVertex3f(points[i][j].x, points[i][j].y, points[i][j].z);
+				glVertex3f(points[i][j + 1].x, points[i][j + 1].y, points[i][j + 1].z);
+				glVertex3f(points[i + 1][j + 1].x, points[i + 1][j + 1].y, points[i + 1][j + 1].z);
+				glVertex3f(points[i + 1][j].x, points[i + 1][j].y, points[i + 1][j].z);
+				//lower hemisphere
+				glVertex3f(points[i][j].x, points[i][j].y, -points[i][j].z);
+				glVertex3f(points[i][j + 1].x, points[i][j + 1].y, -points[i][j + 1].z);
+				glVertex3f(points[i + 1][j + 1].x, points[i + 1][j + 1].y, -points[i + 1][j + 1].z);
+				glVertex3f(points[i + 1][j].x, points[i + 1][j].y, -points[i + 1][j].z);
+			}
+			glEnd();
+		}
+	}
+}
+
+void rotateCylinderPoints(Vector rotationAxis, int degree, int slices, int stacks)
+{
+	for (int i = 0; i <= stacks; i++)
+	{
+
+		for (int j = 0; j <= slices; j++)
+		{
+			cylinderPoints[i][j].rotate(rotationAxis, degree);
+		}
+	}
+}
+
+void addGunShotPoint()
+{
+	GLdouble scale = 200 / cylinderVector.x;
+	GLdouble x = 200;
+	GLdouble y = cylinderVector.y * scale;
+	GLdouble z = cylinderVector.z * scale;
+
+	if (y < 100 && y > -100 && z < 100 && z > -100)
+	{
+		gunshots[gunshotCount] = Point(x, y, z);
+		gunshotCount++;
+	}
+}
 
 void drawSS()
 {
@@ -136,11 +488,18 @@ void drawSS()
     drawSquare(5);*/
 
 	glColor3f(1, 1, 1);
-	drawSphere(50, 100, 20);
+	drawSphere(20, 100, 20);
+	drawCylinder();
+
+	drawSquare(Point(201, 100, 100), Point(201, 100, -100), Point(201, -100, 100), Point(201, -100, -100));
+
+	drawGunShotAll();
 }
 
 void init()
 {
+	getCylinderPoints();
+
 	//codes for initialization
 	drawgrid = 1;
 	drawaxes = 1;
@@ -197,7 +556,6 @@ void display()
 	// second three arguments denote the (x,y,z) coordinates of the point the camera is looking at
 	// third three arguments denote the (x,y,z) coordinates of the up direction of the camera
 
-
 	//again select MODEL-VIEW
 	glMatrixMode(GL_MODELVIEW);
 
@@ -232,7 +590,7 @@ void keyboardListener(unsigned char key, int x, int y)
 	case 'g':
 		drawgrid = 1 - drawgrid;
 		break;
-	case 'a':
+	case 'p':
 		drawaxes = 1 - drawaxes;
 		break;
 	case '1':
@@ -245,24 +603,53 @@ void keyboardListener(unsigned char key, int x, int y)
 		break;
 	case '3':
 		//rotate look up
-		lookVector.rotate(Vector::crossProduct(lookVector, upVector),5);
+		lookVector.rotate(Vector::crossProduct(lookVector, upVector), 5);
 
 		break;
 	case '4':
 		//rotate look down
-		lookVector.rotate(Vector::crossProduct(lookVector, upVector),-5);
+		lookVector.rotate(Vector::crossProduct(lookVector, upVector), -5);
 		break;
 	case '5':
 		//tilt clockwise
-		upVector.rotate(lookVector,5);
+		upVector.rotate(lookVector, 5);
 
 		break;
 	case '6':
 		//tilt counter clockwise
-		upVector.rotate(lookVector,-5);
+		upVector.rotate(lookVector, -5);
+		break;
+	case 'q':
+		if (gunCurrentDegreeY + 2 > gunDegreeRange)
+			break;
+
+		gunCurrentDegreeY += 2;
+		rotateCylinderPoints(Vector(0, 0, 1), 2, 100, 20);
+		cylinderVector.rotate(Vector(0, 0, 1), 2);
+		break;
+	case 'w':
+		if (gunCurrentDegreeY - 2 < -gunDegreeRange)
+			break;
+
+		gunCurrentDegreeY -= 2;
+		rotateCylinderPoints(Vector(0, 0, 1), -2, 100, 20);
+		cylinderVector.rotate(Vector(0, 0, 1), -2);
+		break;
+	case 'e':
+		if (gunCurrentDegreeZ + 2 > gunDegreeRange)
+			break;
+
+		gunCurrentDegreeZ += 2;
+		rotateCylinderPoints(Vector(0, 1, 0), -2, 100, 20);
+		cylinderVector.rotate(Vector(0, 1, 0), -2);
 		break;
 	case 'r':
-		init();
+		if (gunCurrentDegreeZ - 2 < -gunDegreeRange)
+			break;
+
+		gunCurrentDegreeZ -= 2;
+		rotateCylinderPoints(Vector(0, 1, 0), 2, 100, 20);
+		cylinderVector.rotate(Vector(0, 1, 0), 2);
 		break;
 	default:
 		break;
@@ -292,6 +679,8 @@ void specialKeyListener(int key, int x, int y)
 		position.z += movementSpeed * rightVector.z;
 		break;
 	case GLUT_KEY_LEFT:
+		rightVector.set(Vector::crossProduct(lookVector, upVector));
+		
 		position.x -= movementSpeed * rightVector.x;
 		position.y -= movementSpeed * rightVector.y;
 		position.z -= movementSpeed * rightVector.z;
@@ -331,7 +720,7 @@ void mouseListener(int button, int state, int x, int y)
 	case GLUT_LEFT_BUTTON:
 		if (state == GLUT_DOWN)
 		{ // 2 times?? in ONE click? -- solution is checking DOWN or UP
-			drawaxes = 1 - drawaxes;
+			addGunShotPoint();
 		}
 		break;
 
