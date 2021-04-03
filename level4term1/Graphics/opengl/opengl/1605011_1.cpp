@@ -194,49 +194,6 @@ void drawGrid()
 	}
 }
 
-void getCylinderPoints()
-{
-	
-	int i, j;
-	double h, r;
-	//generate points
-	for (i = 0; i <= cylinderStacks; i++)
-	{
-		// h=radius*sin(((double)i/(double)stacks)*(pi/2));
-		h = i * (cylinderHeight / cylinderStacks);
-		//r=radius*cos(((double)i/(double)stacks)*(pi/2));
-		r = cylinderRadius;
-		for (j = 0; j <= cylinderSlices; j++)
-		{
-			cylinderPoints[i][j].y = r * cos(((double)j / (double)cylinderSlices) * 2 * pi);
-			cylinderPoints[i][j].z = r * sin(((double)j / (double)cylinderSlices) * 2 * pi);
-			cylinderPoints[i][j].x = h;
-		}
-	}
-}
-
-void drawCylinder()
-{
-	int i, j;
-	for (i = 0; i < cylinderStacks; i++)
-	{
-		// glColor3f((double)i/(double)stacks,(double)i/(double)stacks,(double)i/(double)stacks);
-		// glColor3f(0,0,0);
-		glColor3f(i % 2, i % 2, i % 2);
-		for (j = 0; j < cylinderSlices; j++)
-		{
-			glBegin(GL_QUADS);
-			{
-				//upper hemisphere
-				glVertex3f(cylinderPoints[i][j].x, cylinderPoints[i][j].y, cylinderPoints[i][j].z);
-				glVertex3f(cylinderPoints[i][j + 1].x, cylinderPoints[i][j + 1].y, cylinderPoints[i][j + 1].z);
-				glVertex3f(cylinderPoints[i + 1][j + 1].x, cylinderPoints[i + 1][j + 1].y, cylinderPoints[i + 1][j + 1].z);
-				glVertex3f(cylinderPoints[i + 1][j].x, cylinderPoints[i + 1][j].y, cylinderPoints[i + 1][j].z);
-			}
-			glEnd();
-		}
-	}
-}
 
 void drawCylinder(double radius, double height, int slices, int stacks)
 {
@@ -255,9 +212,9 @@ void drawCylinder(double radius, double height, int slices, int stacks)
 		r = radius;
 		for (j = 0; j <= slices; j++)
 		{
-			points[i][j].y = r * cos(((double)j / (double)slices) * 2 * pi);
-			points[i][j].z = r * sin(((double)j / (double)slices) * 2 * pi);
-			points[i][j].x = h;
+			points[i][j].x = r * cos(((double)j / (double)slices) * 2 * pi);
+			points[i][j].y = r * sin(((double)j / (double)slices) * 2 * pi);
+			points[i][j].z = h;
 
 			// points[i][j].rotate(Vector(0,1,0),45);
 		}
@@ -290,7 +247,7 @@ void drawCylinder(double radius, double height, int slices, int stacks)
 
 void drawSquare(Point upperRight, Point lowerRight, Point upperLeft, Point lowerLeft)
 {
-	glColor3f(0.5,0.5,0.5);
+	glColor3f(0.5, 0.5, 0.5);
 	glBegin(GL_QUADS);
 	{
 		glVertex3f(upperRight.x, upperRight.y, upperRight.z);
@@ -301,32 +258,29 @@ void drawSquare(Point upperRight, Point lowerRight, Point upperLeft, Point lower
 	glEnd();
 }
 
-void drawGunShot(int y, int z){
-	glColor3f(1,0.5,0.5);
+void drawGunShot(int y, int z)
+{
+	glColor3f(1, 0.5, 0.5);
 	glBegin(GL_QUADS);
 	{
-		glVertex3f(200, y+3, z+3);
-		glVertex3f(200, y+3, z-3);
-		glVertex3f(200, y-3, z-3);
-		glVertex3f(200, y-3, z+3);
+		glVertex3f(200, y + 3, z + 3);
+		glVertex3f(200, y + 3, z - 3);
+		glVertex3f(200, y - 3, z - 3);
+		glVertex3f(200, y - 3, z + 3);
 	}
 	glEnd();
 }
 
-void drawGunShotAll(){
-	for(int i = 0 ; i < gunshotCount; i++){
-		drawGunShot(gunshots[i].y,gunshots[i].z);
+void drawGunShotAll()
+{
+	for (int i = 0; i < gunshotCount; i++)
+	{
+		drawGunShot(gunshots[i].y, gunshots[i].z);
 	}
 }
 
 void drawSquare(double a)
 {
-	//glColor3f(1.0,0.0,0.0);
-
-	//gl begin er moddhe bole dite hobe ami ki draw korte chai
-	//line draw korte gl_lines bolte hobe
-	// tarpor 4 vertext bolte hobe ja diye quadrangle draw korbe.
-	// shudhu boundary na, vitorer shob draw korbe
 	glBegin(GL_QUADS);
 	{
 		glVertex3f(a, a, 2);
@@ -411,7 +365,7 @@ void drawSphere(double radius, int slices, int stacks)
 	//draw quads using generated points
 	for (i = 0; i < stacks; i++)
 	{
-		// glColor3f((double)i/(double)stacks,(double)i/(double)stacks,(double)i/(double)stacks);
+
 		glColor3f(i % 2, i % 2, i % 2);
 		for (j = 0; j < slices; j++)
 		{
@@ -433,18 +387,6 @@ void drawSphere(double radius, int slices, int stacks)
 	}
 }
 
-void rotateCylinderPoints(Vector rotationAxis, int degree, int slices, int stacks)
-{
-	for (int i = 0; i <= stacks; i++)
-	{
-
-		for (int j = 0; j <= slices; j++)
-		{
-			cylinderPoints[i][j].rotate(rotationAxis, degree);
-		}
-	}
-}
-
 void addGunShotPoint()
 {
 	GLdouble scale = 200 / cylinderVector.x;
@@ -461,35 +403,31 @@ void addGunShotPoint()
 
 void drawSS()
 {
-	/*
-    glColor3f(1,0,0);
-    drawSquare(20);
 
-    glRotatef(angle,0,0,1);
-    glTranslatef(110,0,0);
-    glRotatef(2*angle,0,0,1);
-    glColor3f(0,1,0);
-    drawSquare(15);
-
-    glPushMatrix();// atokkhon ja draw kora holo ta main matrix e multiply kore deya lagbe akhon. eita stack e push kora
-    { // upogroho gular jonno
-        glRotatef(angle,0,0,1);
-        glTranslatef(60,0,0);
-        glRotatef(2*angle,0,0,1);
-        glColor3f(0,0,1);
-        drawSquare(10);
-    }
-    glPopMatrix();
-
-    glRotatef(3*angle,0,0,1);
-    glTranslatef(40,0,0);
-    glRotatef(4*angle,0,0,1);
-    glColor3f(1,1,0);
-    drawSquare(5);*/
 
 	glColor3f(1, 1, 1);
-	drawSphere(20, 100, 20);
-	drawCylinder();
+
+	glPushMatrix();{
+		glRotatef(90,0,1,0);
+
+		glRotatef(gunCurrentDegreeY,0,1,0);
+
+		glRotatef(gunCurrentDegreeZ,-1,0,0);
+		drawSphere(20, 100, 20);
+	}
+	glPopMatrix();
+	
+
+	glPushMatrix();
+	{
+		glRotatef(90,0,1,0);
+
+		glRotatef(gunCurrentDegreeY,0,1,0);
+
+		glRotatef(gunCurrentDegreeZ,-1,0,0);
+		drawCylinder(cylinderRadius, cylinderHeight, cylinderSlices, cylinderStacks);
+	}
+	glPopMatrix();
 
 	drawSquare(Point(201, 100, 100), Point(201, 100, -100), Point(201, -100, 100), Point(201, -100, -100));
 
@@ -498,8 +436,6 @@ void drawSS()
 
 void init()
 {
-	getCylinderPoints();
-
 	//codes for initialization
 	drawgrid = 1;
 	drawaxes = 1;
@@ -584,7 +520,7 @@ void display()
 
 void keyboardListener(unsigned char key, int x, int y)
 {
-	cout << "KEYBOARD LISTENER: key=" << key << ",x=" << x << ",y=" << y << endl;
+	//cout << "KEYBOARD LISTENER: key=" << key << ",x=" << x << ",y=" << y << endl;
 	switch (key)
 	{
 	case 'g':
@@ -624,32 +560,36 @@ void keyboardListener(unsigned char key, int x, int y)
 			break;
 
 		gunCurrentDegreeY += 2;
-		rotateCylinderPoints(Vector(0, 0, 1), 2, 100, 20);
-		cylinderVector.rotate(Vector(0, 0, 1), 2);
+
+		cout<<"gunCurrentDegreeY: "<<gunCurrentDegreeY<<endl;
+		cylinderVector.rotate(Vector(0, 1, 0), 2);
 		break;
 	case 'w':
 		if (gunCurrentDegreeY - 2 < -gunDegreeRange)
 			break;
 
 		gunCurrentDegreeY -= 2;
-		rotateCylinderPoints(Vector(0, 0, 1), -2, 100, 20);
-		cylinderVector.rotate(Vector(0, 0, 1), -2);
+
+		cout<<"gunCurrentDegreeY: "<<gunCurrentDegreeY<<endl;
+		cylinderVector.rotate(Vector(0, 1, 0), -2);
 		break;
 	case 'e':
 		if (gunCurrentDegreeZ + 2 > gunDegreeRange)
 			break;
 
 		gunCurrentDegreeZ += 2;
-		rotateCylinderPoints(Vector(0, 1, 0), -2, 100, 20);
-		cylinderVector.rotate(Vector(0, 1, 0), -2);
+
+		cout<<"gunCurrentDegreeZ: "<<gunCurrentDegreeZ<<endl;
+		cylinderVector.rotate(Vector(0, 0, 1), 2);
 		break;
 	case 'r':
-		if (gunCurrentDegreeZ - 2 < -gunDegreeRange)
+		if (gunCurrentDegreeZ - 2 > gunDegreeRange)
 			break;
 
 		gunCurrentDegreeZ -= 2;
-		rotateCylinderPoints(Vector(0, 1, 0), 2, 100, 20);
-		cylinderVector.rotate(Vector(0, 1, 0), 2);
+
+		cout<<"gunCurrentDegreeZ: "<<gunCurrentDegreeZ<<endl;
+		cylinderVector.rotate(Vector(0, 0, 1), -2);
 		break;
 	default:
 		break;
@@ -680,7 +620,7 @@ void specialKeyListener(int key, int x, int y)
 		break;
 	case GLUT_KEY_LEFT:
 		rightVector.set(Vector::crossProduct(lookVector, upVector));
-		
+
 		position.x -= movementSpeed * rightVector.x;
 		position.y -= movementSpeed * rightVector.y;
 		position.z -= movementSpeed * rightVector.z;

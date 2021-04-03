@@ -1,0 +1,39 @@
+# Turn off address space randomization
+
+sudo sysctl -w kernel.randomize_va_space=0
+sudo sysctl -q kernel.randomize_va_space
+
+#Chnage location of /bin/sh from dash to /bin/zsh
+
+ls -l /bin/sh
+sudo ln -sf /bin/zsh /bin/sh
+
+
+#opening a shell
+gcc -z execstack -o call_shellcode call_shellcode.c
+./call_shellcode
+
+#compile stack.c and set uid to root
+
+su root
+gcc -o stackRoot -z execstack -fno-stack-protector stack.c
+chmod 4755 stackRoot
+su seed
+
+#design the exploit (debug)
+gcc -z execstack -fno-stack-protector -g -o stack_dbg stack.c
+gdb stack_dbg
+b bof
+run
+p $ebp
+p &buffe
+p/d
+
+#Prepare Badfile
+python3 exploit.py 
+
+
+
+
+
+

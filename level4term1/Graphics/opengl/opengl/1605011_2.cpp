@@ -11,7 +11,7 @@ using namespace std;
 int drawgrid;
 int drawaxes;
 double angle;
-
+bool paused = false;
 struct point
 {
 	double x, y, z;
@@ -104,8 +104,9 @@ public:
 		return subtract(a, multiply(multiply(n, 2), dotProduct(a, n)));
 	}
 
-	static Vector negate(Vector a){
-		return Vector(-a.x,-a.y,-a.z);
+	static Vector negate(Vector a)
+	{
+		return Vector(-a.x, -a.y, -a.z);
 	}
 };
 
@@ -181,8 +182,8 @@ public:
 	Vector direction;
 	GLdouble speed = 1;
 
-	static constexpr GLdouble maxSpeed = 50;
-	static constexpr GLdouble speedModifier = 0.001;
+	static constexpr GLdouble maxSpeed = 100;
+	static constexpr GLdouble speedModifier = 0.1;
 
 	bool insideSmallCircle = false;
 
@@ -212,10 +213,15 @@ public:
 		this->speed--;
 	}
 
-	void move()
+	void addDisplacement()
 	{
 		this->x += speedModifier * direction.x * speed;
 		this->y += speedModifier * direction.y * speed;
+	}
+
+	void move()
+	{
+		addDisplacement();
 
 		GLdouble distanceFromCenter = sqrt(pow(this->x - 50, 2) + pow(this->y - 50, 2));
 
@@ -230,6 +236,7 @@ public:
 			if (distanceFromCenter > 35 - this->r)
 			{
 				centerCircleReflection();
+				addDisplacement();
 			}
 
 			//largeBoxReflection();
@@ -277,15 +284,14 @@ public:
 
 	static void circleVsCircleReflection();
 
-	GLdouble distance(Circle c){
-		return sqrt(pow(this->x-c.x,2)+pow(this->y-c.y,2));
+	GLdouble distance(Circle c)
+	{
+		return sqrt(pow(this->x - c.x, 2) + pow(this->y - c.y, 2));
 	}
-
-
 };
 
 Color circleColor(1, 1, 0);
-GLdouble circleRadius = 5;
+GLdouble circleRadius = 3;
 Circle circles[5] = {
 	Circle(circleRadius, circleRadius, circleRadius, circleColor),
 	Circle(circleRadius, circleRadius, circleRadius, circleColor),
@@ -301,14 +307,23 @@ void Circle::circleVsCircleReflection()
 		{
 			for (int j = i + 1; j < 5; j++)
 			{
-				if(circles[j].insideSmallCircle){
+				if (circles[j].insideSmallCircle)
+				{
+
+					//if (Vector::dotProduct(circles[i].direction, circles[j].direction) > 0)
+					//{
 					GLdouble centerDistance = circles[i].distance(circles[j]);
-					GLdouble radiusSum = (circles[i].r+circles[j].r);
-					if(centerDistance > radiusSum && centerDistance-radiusSum<1){
-						Vector radiusVector(circles[i].x-circles[j].x,circles[i].y-circles[j].y,0);
-						circles[i].direction = Vector::reflect(circles[i].direction,radiusVector);
-						circles[j].direction = Vector::reflect(circles[j].direction,Vector::negate(radiusVector));
+					GLdouble radiusSum = (circles[i].r + circles[j].r);
+					if (centerDistance > radiusSum && centerDistance - radiusSum < 1)
+					{
+						Vector radiusVector(circles[i].x - circles[j].x, circles[i].y - circles[j].y, 0);
+						circles[i].direction = Vector::reflect(circles[i].direction, radiusVector);
+						circles[j].direction = Vector::reflect(circles[j].direction, Vector::negate(radiusVector));
+
+						// circles[i].addDisplacement();
+						// circles[j].addDisplacement();
 					}
+					//}
 				}
 			}
 		}
@@ -449,13 +464,17 @@ void drawSS()
 
 int spawnedCircleCount = 0;
 
-void spawnCircle(){
-	if(spawnedCircleCount==5){
+void spawnCircle()
+{
+	if (spawnedCircleCount == 5)
+	{
 		return;
 	}
 
-	for(int i = 0 ; i < spawnedCircleCount; i++){
-		if(circles[i].x<20 || circles[i].y < 20){
+	for (int i = 0; i < spawnedCircleCount; i++)
+	{
+		if (circles[i].x < 20 || circles[i].y < 20)
+		{
 			return;
 		}
 	}
@@ -470,7 +489,7 @@ void init()
 	//codes for initialization
 	drawgrid = 0;
 	drawaxes = 0;
-/*
+	/*
 	circles[0].setDirection(Vector(rand(), rand(), 0));
 	circles[1].setDirection(Vector(rand(), rand(), 0));
 	circles[2].setDirection(Vector(rand(), rand(), 0));
@@ -499,16 +518,17 @@ void init()
 
 void animate()
 {
-	spawnCircle();
-
-	angle += 0.005;
-
-	for (int i = 0; i < 5; i++)
+	if (!paused)
 	{
-		circles[i].move();
-	}
+		spawnCircle();
 
-	Circle::circleVsCircleReflection();
+		Circle::circleVsCircleReflection();
+
+		for (int i = 0; i < 5; i++)
+		{
+			circles[i].move();
+		}
+	}
 
 	//codes for any changes in Models, Camera
 	glutPostRedisplay();
@@ -576,6 +596,9 @@ void keyboardListener(unsigned char key, int x, int y)
 		drawaxes = 1 - drawaxes;
 	case 'g':
 		drawgrid = 1 - drawgrid;
+		break;
+	case 'p':
+		paused = !paused;
 		break;
 	default:
 		break;
