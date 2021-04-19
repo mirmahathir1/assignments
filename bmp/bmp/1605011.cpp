@@ -7,7 +7,7 @@ using namespace std;
 
 double degreeToRadian(double degree)
 {
-	return (degree * (pi / 180.0));
+    return (degree * (pi / 180.0));
 }
 
 class TwoDArray
@@ -31,7 +31,14 @@ protected:
     double set(int row, int col, double value)
     {
         check(row, col);
-        this->data[row][col] = value;
+        if (value < 1.0 / 100 && value > -1.0 / 100)
+        {
+            this->data[row][col] = 0;
+        }
+        else
+        {
+            this->data[row][col] = value;
+        }
     }
 
 public:
@@ -97,8 +104,9 @@ class OneDArray : public TwoDArray
 {
 public:
     OneDArray() : TwoDArray(4, 1) {}
-    OneDArray(OneDArray *a) : TwoDArray(a) {
-        this->set(3,1);
+    OneDArray(OneDArray *a) : TwoDArray(a)
+    {
+        this->set(3, 1);
     }
 
 public:
@@ -126,18 +134,20 @@ public:
             product = product + a->get(i) * b->get(i);
         return product;
     }
-    OneDArray* multiply(double factor){
-        OneDArray* returnArray = new OneDArray(this);
-        returnArray->set(0,returnArray->get(0)*factor);
-        returnArray->set(1,returnArray->get(1)*factor);
-        returnArray->set(2,returnArray->get(2)*factor);
+    OneDArray *multiply(double factor)
+    {
+        OneDArray *returnArray = new OneDArray(this);
+        returnArray->set(0, returnArray->get(0) * factor);
+        returnArray->set(1, returnArray->get(1) * factor);
+        returnArray->set(2, returnArray->get(2) * factor);
         return returnArray;
     }
-    OneDArray* sum(OneDArray* a){
-        OneDArray* returnArray = new OneDArray(this);
-        returnArray->set(0,returnArray->get(0)+a->get(0));
-        returnArray->set(1,returnArray->get(1)+a->get(1));
-        returnArray->set(2,returnArray->get(2)+a->get(2));
+    OneDArray *sum(OneDArray *a)
+    {
+        OneDArray *returnArray = new OneDArray(this);
+        returnArray->set(0, returnArray->get(0) + a->get(0));
+        returnArray->set(1, returnArray->get(1) + a->get(1));
+        returnArray->set(2, returnArray->get(2) + a->get(2));
         return returnArray;
     }
 };
@@ -155,6 +165,31 @@ public:
     {
         return TwoDArray::get(row, col);
     }
+    void init_as_identity(){
+        for(int i = 0 ; i < 4; i++){
+            this->set(i,i,1);
+        }
+    }
+};
+
+
+class Point : public OneDArray
+{
+public:
+    Point() : OneDArray() {}
+    Point(Point *a) : OneDArray(a) {}
+    void scale()
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            this->set(i, this->get(i) / this->get(3));
+        }
+    }
+    Point* transform(Matrix* a){
+        Point* returnValue = (Point*)TwoDArray::multiply(a, this);
+        returnValue->scale();
+        return returnValue;
+    }
 };
 
 class Vector : public OneDArray
@@ -162,76 +197,77 @@ class Vector : public OneDArray
 public:
     Vector() : OneDArray() {}
     Vector(Vector *a) : OneDArray(a) {}
-    static OneDArray* rotate(OneDArray* x, Vector* a, double theta){
-        
+    static OneDArray *rotate(OneDArray *x, Vector *a, double theta)
+    {
+
         double cosineOfDegree = cos((double)degreeToRadian(theta));
-		double sineOfDegree = sin((double)degreeToRadian(theta));
-        
-        OneDArray* sumVector = new OneDArray();
+        double sineOfDegree = sin((double)degreeToRadian(theta));
+
+        OneDArray *sumVector = new OneDArray();
         sumVector = sumVector->sum(x->multiply(cosineOfDegree));
-        sumVector = sumVector->sum(a->multiply(OneDArray::dotProduct(a,x))->multiply(1-cosineOfDegree));
-        sumVector = sumVector->sum(OneDArray::crossProduct(a,x)->multiply(sineOfDegree));
+        sumVector = sumVector->sum(a->multiply(OneDArray::dotProduct(a, x))->multiply(1 - cosineOfDegree));
+        sumVector = sumVector->sum(OneDArray::crossProduct(a, x)->multiply(sineOfDegree));
         return sumVector;
     }
 
-    static Matrix* generateRotationMatrix(Vector* a, double angle){
-        Matrix* resultMatrix = new Matrix();
-        
-        Vector* i = new Vector(); i->set(0,1); i->set(3,1);
-        Vector* j = new Vector(); j->set(1,1); j->set(3,1);
-        Vector* k = new Vector(); k->set(2,1); k->set(3,1);
-        
-        OneDArray* c1; OneDArray* c2;OneDArray* c3;
-        Vector* normalized_a = a->normalize();
+    static Matrix *generateRotationMatrix(Vector *a, double angle)
+    {
+        Matrix *resultMatrix = new Matrix();
 
-        
+        Vector *i = new Vector();
+        i->set(0, 1);
+        i->set(3, 1);
+        Vector *j = new Vector();
+        j->set(1, 1);
+        j->set(3, 1);
+        Vector *k = new Vector();
+        k->set(2, 1);
+        k->set(3, 1);
 
-        c1 = Vector::rotate(i,normalized_a,angle);
-        c2 = Vector::rotate(j,normalized_a,angle);
-        c3 = Vector::rotate(k,normalized_a,angle);
+        OneDArray *c1;
+        OneDArray *c2;
+        OneDArray *c3;
+        Vector *normalized_a = a->normalize();
 
-        resultMatrix->set(0,0,c1->get(0));
-        resultMatrix->set(0,1,c2->get(0));
-        resultMatrix->set(0,2,c3->get(0));
+        c1 = Vector::rotate(i, normalized_a, angle);
+        c2 = Vector::rotate(j, normalized_a, angle);
+        c3 = Vector::rotate(k, normalized_a, angle);
 
-        resultMatrix->set(1,0,c1->get(1));
-        resultMatrix->set(1,1,c2->get(1));
-        resultMatrix->set(1,2,c3->get(1));
+        resultMatrix->set(0, 0, c1->get(0));
+        resultMatrix->set(0, 1, c2->get(0));
+        resultMatrix->set(0, 2, c3->get(0));
 
-        resultMatrix->set(2,0,c1->get(2));
-        resultMatrix->set(2,1,c2->get(2));
-        resultMatrix->set(2,2,c3->get(2));
+        resultMatrix->set(1, 0, c1->get(1));
+        resultMatrix->set(1, 1, c2->get(1));
+        resultMatrix->set(1, 2, c3->get(1));
 
-        resultMatrix->set(3,3,1);
-        
+        resultMatrix->set(2, 0, c1->get(2));
+        resultMatrix->set(2, 1, c2->get(2));
+        resultMatrix->set(2, 2, c3->get(2));
+
+        resultMatrix->set(3, 3, 1);
 
         return resultMatrix;
     }
 
-    Vector* normalize(){
-        Vector* result = new Vector(this);
+    Vector *normalize()
+    {
+        Vector *result = new Vector(this);
 
-        double denominator = sqrt(result->get(0)*result->get(0)+result->get(1)*result->get(1)+result->get(2)*result->get(2));
-        result->set(0,result->get(0)/denominator);
-        result->set(1,result->get(1)/denominator);
-        result->set(2,result->get(2)/denominator);
+        double denominator = sqrt(result->get(0) * result->get(0) + result->get(1) * result->get(1) + result->get(2) * result->get(2));
+        result->set(0, result->get(0) / denominator);
+        result->set(1, result->get(1) / denominator);
+        result->set(2, result->get(2) / denominator);
 
         return result;
     }
 
-
-};
-class Point : public OneDArray
-{
-public:
-    Point() : OneDArray() {}
-    Point(Point *a) : OneDArray(a) {}
-    void normalize()
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            this->set(i, this->get(i) / this->get(3));
-        }
+    Vector* subtract(Point* a){
+        Vector* result = new Vector(this);
+        result->set(0,result->get(0)-a->get(0));
+        result->set(1,result->get(1)-a->get(1));
+        result->set(2,result->get(2)-a->get(2));
+        return result;
     }
 };
 
@@ -261,17 +297,54 @@ public:
     {
         return matrixStack.size() == 0;
     }
-    Matrix* get_top(){
+    Matrix *get_top()
+    {
         return matrixStack[matrixStack.size() - 1];
     }
+
+    void multiply_with_top(Matrix *a)
+    {
+        Matrix *top = this->pop();
+        // this->push((Matrix *)TwoDArray::multiply(a, top));
+        this->push((Matrix *)TwoDArray::multiply(top,a));
+    }
 };
+
+ifstream fin;
+ofstream f1out;
+ofstream f2out;
+ofstream f3out;
+
+void print_triangle_of_stage1(Point* a, Point* b, Point* c){
+    f1out<<a->get(0)<<" "<<a->get(1)<<" "<<a->get(2)<<endl;
+    f1out<<b->get(0)<<" "<<b->get(1)<<" "<<b->get(2)<<endl;
+    f1out<<c->get(0)<<" "<<c->get(1)<<" "<<c->get(2)<<endl;
+    f1out<<endl;
+}
+
+void print_triangle_of_stage2(Point* a, Point* b, Point* c){
+    f2out<<a->get(0)<<" "<<a->get(1)<<" "<<a->get(2)<<endl;
+    f2out<<b->get(0)<<" "<<b->get(1)<<" "<<b->get(2)<<endl;
+    f2out<<c->get(0)<<" "<<c->get(1)<<" "<<c->get(2)<<endl;
+    f2out<<endl;
+}
+
+void print_triangle_of_stage3(Point* a, Point* b, Point* c){
+    f3out<<a->get(0)<<" "<<a->get(1)<<" "<<a->get(2)<<endl;
+    f3out<<b->get(0)<<" "<<b->get(1)<<" "<<b->get(2)<<endl;
+    f3out<<c->get(0)<<" "<<c->get(1)<<" "<<c->get(2)<<endl;
+    f3out<<endl;
+}
 
 Stack stack;
 
 int main()
 {
-    ifstream fin;
+    
     fin.open("scene.txt");
+    f1out.open("stage1.txt");
+    f2out.open("stage2.txt");
+    f3out.open("stage3.txt");
 
     Point *eye = new Point();
     Vector *look = new Vector();
@@ -303,16 +376,57 @@ int main()
     up->set(3, 1);
     fin >> fovY >> aspectRatio >> near >> far;
 
-    eye->print();
-    look->print();
-    up->print();
-    cout << fovY << " " << aspectRatio << " " << near << " " << far << endl;
+    // eye->print();
+    // look->print();
+    // up->print();
+    // cout << fovY << " " << aspectRatio << " " << near << " " << far << endl;
+
+    //STAGE 2 PROCESSING
+
+    Vector* l = look->subtract(eye);
+    l=l->normalize();
+    
+    Vector* r = (Vector*)OneDArray::crossProduct(l,up);
+    r=r->normalize();
+
+    Vector* u = (Vector*)OneDArray::crossProduct(r,l);
+
+    Matrix* T = new Matrix();
+    T->init_as_identity();
+    T->set(0,3,-eye->get(0));
+    T->set(1,3,-eye->get(1));
+    T->set(2,3,-eye->get(2));
+
+    Matrix* R = new Matrix();
+    R->init_as_identity();
+    for(int i = 0 ; i < 3; i++){
+        R->set(0,i,r->get(i));
+        R->set(1,i,u->get(i));
+        R->set(2,i,-l->get(i));
+    }
+
+
+    Matrix* V = (Matrix*)TwoDArray::multiply(R,T);
+    V->print();
+
+    //STAGE 3 PROCESSING
+
+    double fovX = fovY * aspectRatio;
+    double tP = near * tan((double)degreeToRadian(fovY/2));
+    double rP = near * tan((double)degreeToRadian(fovX/2));
+    Matrix* P = new Matrix();
+    P->set(0,0,near/rP);
+    P->set(1,1,near/tP);
+    P->set(2,2,-(far+near)/(far-near));
+    P->set(2,3,-(2*far*near)/(far-near));
+    P->set(3,2,-1);
+    cout<<"Printing P: "<<endl;
+    P->print();
+
 
     Matrix* initMatrix = new Matrix();
-    for(int i = 0 ; i < 4; i++){
-        initMatrix->set(i,i,1);
-    }
-    
+    initMatrix->init_as_identity();
+
     stack.push(initMatrix);
 
     string option;
@@ -347,10 +461,51 @@ int main()
             point3->set(2, numberInput);
             point3->set(3, 1);
 
+            // cout<<"points before transformation: "<<endl;
+            // point1->print();
+            // point2->print();
+            // point3->print();
+
+            // cout<<"points after transformation: "<<endl;
+            // TwoDArray::multiply(stack.get_top(), point1)->print();
+            // TwoDArray::multiply(stack.get_top(), point2)->print();
+            // TwoDArray::multiply(stack.get_top(), point3)->print();
+            // print_triangle_of_stage1(
+            //     (Point*)TwoDArray::multiply(stack.get_top(), point1),
+            //     (Point*)TwoDArray::multiply(stack.get_top(), point2),
+            //     (Point*)TwoDArray::multiply(stack.get_top(), point3)
+            // );
+
+            Point* stage1_point1 = point1->transform(stack.get_top());
+            Point* stage1_point2 = point2->transform(stack.get_top());
+            Point* stage1_point3 = point3->transform(stack.get_top());
+
+            print_triangle_of_stage1(
+                stage1_point1,
+                stage1_point2,
+                stage1_point3
+            );
+
+            Point* stage2_point1 = stage1_point1->transform(V);
+            Point* stage2_point2 = stage1_point2->transform(V);
+            Point* stage2_point3 = stage1_point3->transform(V);
+
+            print_triangle_of_stage2(
+                stage2_point1,
+                stage2_point2,
+                stage2_point3
+            );
+
+            Point* stage3_point1 = stage2_point1->transform(P);
+            Point* stage3_point2 = stage2_point2->transform(P);
+            Point* stage3_point3 = stage2_point3->transform(P);
+
+            print_triangle_of_stage3(
+                stage3_point1,
+                stage3_point2,
+                stage3_point3
+            );
             
-            point1->print();
-            point2->print();
-            point3->print();
         }
         else if (option == "scale")
         {
@@ -363,7 +518,13 @@ int main()
             fin >> numberInput;
             scaleMatrix->set(2, 2, numberInput);
             scaleMatrix->set(3, 3, 1);
-            scaleMatrix->print();
+            // scaleMatrix->print();
+
+            // cout << "stack before multiplying with top: " << endl;
+            // stack.get_top()->print();
+            stack.multiply_with_top(scaleMatrix);
+            // cout << "stack after multiplying with top: " << endl;
+            // stack.get_top()->print();
         }
         else if (option == "translate")
         {
@@ -379,41 +540,52 @@ int main()
             translateMatrix->set(1, 1, 1);
             translateMatrix->set(2, 2, 1);
             translateMatrix->set(3, 3, 1);
-            translateMatrix->print();
+            // translateMatrix->print();
+
+            // cout << "stack before multiplying with top: " << endl;
+            // stack.get_top()->print();
+            stack.multiply_with_top(translateMatrix);
+            // cout << "stack after multiplying with top: " << endl;
+            // stack.get_top()->print();
         }
         else if (option == "rotate")
         {
             cout << "Rotate found" << endl;
-            Vector* axis = new Vector();
+            Vector *axis = new Vector();
             double angle;
             fin >> angle;
             fin >> numberInput;
-            axis->set(0,numberInput);
-            fin >> numberInput; 
-            axis->set(1,numberInput);
-            fin >> numberInput; 
-            axis->set(2,numberInput);
-            axis->set(3,1);
+            axis->set(0, numberInput);
+            fin >> numberInput;
+            axis->set(1, numberInput);
+            fin >> numberInput;
+            axis->set(2, numberInput);
+            axis->set(3, 1);
 
-            
-            
-            Matrix* rotationMatrix = Vector::generateRotationMatrix(axis,angle);
+            Matrix *rotationMatrix = Vector::generateRotationMatrix(axis, angle);
 
-            rotationMatrix->print();
-            
-          
+            // rotationMatrix->print();
+
+            // cout << "stack before multiplying with top: " << endl;
+            // stack.get_top()->print();
+            stack.multiply_with_top(rotationMatrix);
+            // cout << "stack after multiplying with top: " << endl;
+            // stack.get_top()->print();
         }
         else if (option == "push")
         {
             cout << "Push found" << endl;
+
+            stack.push(stack.get_top());
         }
         else if (option == "pop")
         {
             cout << "Pop found" << endl;
+            stack.pop();
         }
         else if (option == "end")
         {
-            cout<< "End found" << endl;
+            cout << "End found" << endl;
             break;
         }
     }
