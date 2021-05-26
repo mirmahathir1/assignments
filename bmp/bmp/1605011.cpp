@@ -173,6 +173,9 @@ public:
 };
 
 
+
+
+
 class Point : public OneDArray
 {
 public:
@@ -189,6 +192,34 @@ public:
         Point* returnValue = (Point*)TwoDArray::multiply(a, this);
         returnValue->scale();
         return returnValue;
+    }
+};
+
+class Triangle : public TwoDArray
+{
+public:
+    int color[3]={0,0,0};
+    Triangle(Point* a, Point* b, Point* c) : TwoDArray(3, 3) {
+        this->set(0,0,a->get(0));
+        this->set(0,1,a->get(1));
+        this->set(0,2,a->get(2));
+
+        for(int i = 0 ; i< 3; i++){
+            this->set(0,i,a->get(i));
+            this->set(1,i,b->get(i));
+            this->set(2,i,c->get(i));
+        }
+
+        this->color[0]= this->getRandom(0,255);
+        this->color[1]= this->getRandom(0,255);
+        this->color[2]= this->getRandom(0,255);
+    }
+    int getRandom(int min, int max){
+        return min + ( std::rand() % ( max - min + 1 ) );
+    }
+    void print(){
+        TwoDArray::print();
+        cout<<"Color: R="<<this->color[0]<<", G="<<this->color[1]<<", B="<<this->color[2]<<endl;
     }
 };
 
@@ -311,9 +342,13 @@ public:
 };
 
 ifstream fin;
+ifstream finConfig;
 ofstream f1out;
 ofstream f2out;
 ofstream f3out;
+ofstream foutZbuffer;
+
+
 
 void print_triangle_of_stage1(Point* a, Point* b, Point* c){
     f1out<<a->get(0)<<" "<<a->get(1)<<" "<<a->get(2)<<endl;
@@ -337,6 +372,7 @@ void print_triangle_of_stage3(Point* a, Point* b, Point* c){
 }
 
 Stack stack;
+vector<Triangle*> triangles;
 
 int main()
 {
@@ -345,6 +381,7 @@ int main()
     f1out.open("stage1.txt");
     f2out.open("stage2.txt");
     f3out.open("stage3.txt");
+    foutZbuffer.open("z_buffer.txt");
 
     Point *eye = new Point();
     Vector *look = new Vector();
@@ -352,6 +389,7 @@ int main()
 
     double fovY, aspectRatio, near, far;
     double numberInput;
+    double numberOfTriangles = 0;
 
     fin >> numberInput;
     eye->set(0, numberInput);
@@ -407,7 +445,7 @@ int main()
 
 
     Matrix* V = (Matrix*)TwoDArray::multiply(R,T);
-    V->print();
+    // V->print();
 
     //STAGE 3 PROCESSING
 
@@ -420,8 +458,8 @@ int main()
     P->set(2,2,-(far+near)/(far-near));
     P->set(2,3,-(2*far*near)/(far-near));
     P->set(3,2,-1);
-    cout<<"Printing P: "<<endl;
-    P->print();
+    // cout<<"Printing P: "<<endl;
+    // P->print();
 
 
     Matrix* initMatrix = new Matrix();
@@ -435,7 +473,8 @@ int main()
         fin >> option;
         if (option == "triangle")
         {
-            cout << "Triangle found" << endl;
+            // cout << "Triangle found" << endl;
+            numberOfTriangles++;
             Point *point1 = new Point();
             Point *point2 = new Point();
             Point *point3 = new Point();
@@ -505,11 +544,13 @@ int main()
                 stage3_point2,
                 stage3_point3
             );
+
+            triangles.push_back(new Triangle(stage3_point1, stage3_point2, stage3_point3));
             
         }
         else if (option == "scale")
         {
-            cout << "Scale found" << endl;
+            // cout << "Scale found" << endl;
             Matrix *scaleMatrix = new Matrix();
             fin >> numberInput;
             scaleMatrix->set(0, 0, numberInput);
@@ -528,7 +569,7 @@ int main()
         }
         else if (option == "translate")
         {
-            cout << "Translate found" << endl;
+            // cout << "Translate found" << endl;
             Matrix *translateMatrix = new Matrix();
             fin >> numberInput;
             translateMatrix->set(0, 3, numberInput);
@@ -550,7 +591,7 @@ int main()
         }
         else if (option == "rotate")
         {
-            cout << "Rotate found" << endl;
+            // cout << "Rotate found" << endl;
             Vector *axis = new Vector();
             double angle;
             fin >> angle;
@@ -574,19 +615,83 @@ int main()
         }
         else if (option == "push")
         {
-            cout << "Push found" << endl;
+            // cout << "Push found" << endl;
 
             stack.push(stack.get_top());
         }
         else if (option == "pop")
         {
-            cout << "Pop found" << endl;
+            // cout << "Pop found" << endl;
             stack.pop();
         }
         else if (option == "end")
         {
-            cout << "End found" << endl;
+            // cout << "End found" << endl;
             break;
         }
     }
+
+    //################################STARTING STAGE 4###############################
+    cout<<"Amount of triangles: "<<triangles.size()<<endl;
+    for(int i = 0 ; i < triangles.size() ; i++){
+        triangles.at(i)->print();
+        cout<<endl;
+    }
+
+    finConfig.open("config.txt");
+    int screen_width, screen_height;
+    double left_limit_x, bottom_limit_y, front_limit_z, rear_limit_z;
+    double right_limit_x, top_limit_y;
+
+    finConfig >> screen_width >> screen_height >> left_limit_x >> bottom_limit_y >> front_limit_z >> rear_limit_z;
+    right_limit_x = - left_limit_x;
+    top_limit_y = - bottom_limit_y;
+
+    cout << "screen_width: " << screen_width << endl;
+    cout << "screen_height: "<< screen_height << endl;
+    cout << "left_limit_x: " << left_limit_x << endl;
+    cout << "bottom_limit_y: " << bottom_limit_y << endl;
+    cout << "front_limit_z: " << front_limit_z << endl;
+    cout << "rear_limit_z: " << rear_limit_z << endl;
+
+    //keep the z distance of the point in the triangle
+    double** z_buffer = new double*[screen_height];
+    for(int i = 0 ; i < screen_height; i++){
+        z_buffer[i] = new double[screen_width];
+        for(int j = 0 ; j < screen_width; j++ ){
+            z_buffer[i][j] = rear_limit_z;
+        }
+    }
+
+    //keep the number of triangle that is going to be shown. -1 means no color
+    int** frame_buffer = new int*[screen_height];
+    for(int i = 0 ; i < screen_height; i++){
+        frame_buffer[i] = new int[screen_width];
+        for(int j = 0; j < screen_width; j++){
+            frame_buffer[i][j] = -1;
+        }
+    }
+
+    double dx = (right_limit_x - left_limit_x ) / screen_width;
+    double dy = (top_limit_y - bottom_limit_y) / screen_height;
+    double top_y = (top_limit_y - dy/2);
+    double left_x = (left_limit_x + dx/2);
+
+    
+
+
+    //printing the z buffer to file
+    for(int i = 0 ; i < screen_height ; i++){
+        for(int j = 0 ; j < screen_width ; j++){
+            foutZbuffer << z_buffer[i][j] << '\t';
+        }
+        foutZbuffer << endl;
+    }
+
+
+
+
+
+
+
 }
