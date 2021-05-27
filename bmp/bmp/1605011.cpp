@@ -2,6 +2,8 @@
 #include <vector>
 #include <fstream>
 #include <math.h>
+#include <algorithm>
+#define INFINITY 9999
 #define pi (2 * acos(0.0))
 using namespace std;
 
@@ -199,15 +201,48 @@ class Triangle : public TwoDArray
 {
 public:
     int color[3]={0,0,0};
+    double max_y=-INFINITY;
+    double min_y=INFINITY;
+    double max_x=-INFINITY;
+    double min_x=INFINITY;
     Triangle(Point* a, Point* b, Point* c) : TwoDArray(3, 3) {
-        this->set(0,0,a->get(0));
-        this->set(0,1,a->get(1));
-        this->set(0,2,a->get(2));
+        vector<Point *> points;
+
+        points.push_back(a);
+        points.push_back(b);
+        points.push_back(c);
+
+        sort(points.begin(),points.end(),[](Point* left, Point* right){
+            return left->get(1) < right->get(1);
+        });
+
+        // cout<<"Printing sorted points: "<<endl;
+        // for(int i = 0 ; i < points.size(); i++){
+        //     points.at(i)->print();
+        // }
 
         for(int i = 0 ; i< 3; i++){
-            this->set(0,i,a->get(i));
-            this->set(1,i,b->get(i));
-            this->set(2,i,c->get(i));
+            for(int j = 0; j < 3; j++){
+                this->set(j,i,points.at(j)->get(i));
+            }
+            // this->set(0,i,a->get(i));
+            // this->set(1,i,b->get(i));
+            // this->set(2,i,c->get(i));
+        }
+
+        for(int i = 0; i < 3; i++){
+            if(this->get(i,0)<min_x){
+                min_x = this->get(i,0);
+            }
+            if(this->get(i,0)>max_x){
+                max_x = this->get(i,0);
+            }
+            if(this->get(i,1)<min_y){
+                min_y = this->get(i,1);
+            }
+            if(this->get(i,1)>max_y){
+                max_y = this->get(i,1);
+            }
         }
 
         this->color[0]= this->getRandom(0,255);
@@ -220,6 +255,49 @@ public:
     void print(){
         TwoDArray::print();
         cout<<"Color: R="<<this->color[0]<<", G="<<this->color[1]<<", B="<<this->color[2]<<endl;
+        cout<<"min_x: "<<min_x<<", max_x: "<<max_x<<", min_y: "<<min_y<<", max_y:"<<max_y<<endl;
+    }
+    double* getIntersections(double y){
+        if(y<get(0,1)){
+            cout<<"ERROR: scan line is passing over the triangle"<<endl;
+            exit(0);
+        }
+        if(y>get(2,1)){
+            cout<<"ERROR: scan line is passing below the triangle"<<endl;
+            exit(0);
+        }
+        double x1,x2,y1,y2,x3,y3,x4,y4;
+        x3 = this->get(0,0);
+        y3 = this->get(0,1);
+        x4 = this->get(2,0);
+        y4 = this->get(2,1);
+        if(y< this->get(1,1)){
+            x1=this->get(0,0);
+            y1=this->get(0,1);
+            x2=this->get(1,0);
+            y2=this->get(1,1);
+        }else if(y < this->get(2,1)){
+            x1=this->get(1,0);
+            y1=this->get(1,1);
+            x2=this->get(2,0);
+            y2=this->get(2,1);
+        }else if(y == this->get(2,1)){
+            cout<<"ERROR: line is passing though the lowest point"<<endl;
+            exit(0);
+        }
+
+        double* x_return  = new double[2];
+        x_return[0] = ((y-y1)*(x1-x2))/(y1-y2)+x1;
+        x_return[1] = ((y-y3)*(x3-x4))/(y3-y4)+x3;
+
+        if(x_return[0]>x_return[1]){
+            double temp = x_return[0];
+            x_return[0] = x_return[1];
+            x_return[1] = temp;
+        }
+        
+
+        return x_return;
     }
 };
 
@@ -675,7 +753,9 @@ int main()
     double dx = (right_limit_x - left_limit_x ) / screen_width;
     double dy = (top_limit_y - bottom_limit_y) / screen_height;
     double top_y = (top_limit_y - dy/2);
+    double bottom_y = (bottom_limit_y + dy/2);
     double left_x = (left_limit_x + dx/2);
+    double right_x = (right_limit_x - dx/2);
 
     
 
@@ -689,7 +769,29 @@ int main()
     }
 
 
+    for(int i = 0 ; i < triangles.size() ; i++){
+        Triangle* triangle = triangles.at(i);
+        triangle->print();
+        
+        double clipped_max_y = min(top_y,triangle->max_y);
+        double clipped_min_y = max(bottom_y, triangle->min_y);
+        double current_y = top_y;
+        for(int i = 0 ; i < screen_height; i++){
+            current_y-=dy;
+        
+            if(current_y< clipped_min_y)break;
+            if(current_y < clipped_max_y) continue;
 
+            
+
+
+
+        }
+
+        
+
+        break;
+    }
 
 
 
