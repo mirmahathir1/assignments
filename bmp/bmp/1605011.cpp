@@ -103,7 +103,7 @@ public:
         {
             for (int j = 0; j < a->col; j++)
             {
-                resultArray->set(i,j,a->get(i,j)-b->get(i,j));
+                resultArray->set(i, j, a->get(i, j) - b->get(i, j));
             }
         }
         return resultArray;
@@ -201,10 +201,11 @@ class Point : public OneDArray
 public:
     Point() : OneDArray() {}
     Point(Point *a) : OneDArray(a) {}
-    Point(double x, double y, double z):OneDArray(){
-        this->set(0,x);
-        this->set(1,y);
-        this->set(2,z);
+    Point(double x, double y, double z) : OneDArray()
+    {
+        this->set(0, x);
+        this->set(1, y);
+        this->set(2, z);
     }
     void scale()
     {
@@ -220,8 +221,6 @@ public:
         return returnValue;
     }
 };
-
-
 
 class Vector : public OneDArray
 {
@@ -318,9 +317,8 @@ public:
         points.push_back(b);
         points.push_back(c);
 
-        sort(points.begin(), points.end(), [](Point *left, Point *right) {
-            return left->get(1) < right->get(1);
-        });
+        sort(points.begin(), points.end(), [](Point *left, Point *right)
+             { return left->get(1) < right->get(1); });
 
         // cout<<"Printing sorted points: "<<endl;
         // for(int i = 0 ; i < points.size(); i++){
@@ -420,7 +418,6 @@ public:
         x_return[0] = ((y - y1) * (x1 - x2)) / (y1 - y2) + x1;
         x_return[2] = ((y - y1) * (z1 - z2)) / (y1 - y2) + z1;
 
-
         x_return[1] = ((y - y3) * (x3 - x4)) / (y3 - y4) + x3;
         x_return[3] = ((y - y3) * (z3 - z4)) / (y3 - y4) + z3;
 
@@ -437,7 +434,6 @@ public:
 
         return x_return;
     }
-
 };
 class Stack
 {
@@ -519,7 +515,7 @@ int main()
     f1out.open("stage1.txt");
     f2out.open("stage2.txt");
     f3out.open("stage3.txt");
-    foutZbuffer.open("z_buffer.txt");
+    foutZbuffer.open("z-buffer.txt");
 
     Point *eye = new Point();
     Vector *look = new Vector();
@@ -582,7 +578,13 @@ int main()
         R->set(2, i, -l->get(i));
     }
 
+    // cout<<"Rotation Matrix: "<<endl;
+    // R->print();
+    // cout<<"Translation Matrix: "<<endl;
+    // T->print();
+
     Matrix *V = (Matrix *)TwoDArray::multiply(R, T);
+    // cout<<"V matrix: "<<endl;
     // V->print();
 
     //STAGE 3 PROCESSING
@@ -765,12 +767,12 @@ int main()
     }
 
     //################################STARTING STAGE 4###############################
-    cout << "Amount of triangles: " << triangles.size() << endl;
-    for (int i = 0; i < triangles.size(); i++)
-    {
-        triangles.at(i)->print();
-        cout << endl;
-    }
+    // cout << "Amount of triangles: " << triangles.size() << endl;
+    // for (int i = 0; i < triangles.size(); i++)
+    // {
+    //     triangles.at(i)->print();
+    //     cout << endl;
+    // }
 
     finConfig.open("config.txt");
     int screen_width, screen_height;
@@ -781,12 +783,12 @@ int main()
     right_limit_x = -left_limit_x;
     top_limit_y = -bottom_limit_y;
 
-    cout << "screen_width: " << screen_width << endl;
-    cout << "screen_height: " << screen_height << endl;
-    cout << "left_limit_x: " << left_limit_x << endl;
-    cout << "bottom_limit_y: " << bottom_limit_y << endl;
-    cout << "front_limit_z: " << front_limit_z << endl;
-    cout << "rear_limit_z: " << rear_limit_z << endl;
+    // cout << "screen_width: " << screen_width << endl;
+    // cout << "screen_height: " << screen_height << endl;
+    // cout << "left_limit_x: " << left_limit_x << endl;
+    // cout << "bottom_limit_y: " << bottom_limit_y << endl;
+    // cout << "front_limit_z: " << front_limit_z << endl;
+    // cout << "rear_limit_z: " << rear_limit_z << endl;
 
     bitmap_image image(screen_width, screen_height);
     for (int i = 0; i < screen_height; i++)
@@ -826,28 +828,18 @@ int main()
     double left_x = (left_limit_x + dx / 2);
     double right_x = (right_limit_x - dx / 2);
 
-    //printing the z buffer to file
-    for (int i = 0; i < screen_height; i++)
-    {
-        for (int j = 0; j < screen_width; j++)
-        {
-            foutZbuffer << z_buffer[i][j] << '\t';
-        }
-        foutZbuffer << endl;
-    }
-
-    cout << "triangles.size(): " << triangles.size() << endl;
+    // cout << "triangles.size(): " << triangles.size() << endl;
 
     for (int i = 0; i < triangles.size(); i++)
     {
-        cout << "start scan of triangle" << endl;
+        // cout << "start scan of triangle" << endl;
         Triangle *triangle = triangles.at(i);
-        triangle->print();
+        // triangle->print();
 
         double clipped_max_y = min(top_y, triangle->max_y);
         double clipped_min_y = max(bottom_y, triangle->min_y);
 
-        cout << "clipped_max_y: " << clipped_max_y << ", clipped_min_y: " << clipped_min_y << endl;
+        // cout << "clipped_max_y: " << clipped_max_y << ", clipped_min_y: " << clipped_min_y << endl;
         double current_y = top_y;
         for (int j = 0; j < screen_height; j++)
         {
@@ -866,7 +858,6 @@ int main()
             double clipped_min_x = max(intersects[0], left_x);
             double clipped_max_x = min(intersects[1], right_x);
 
-
             double z_of_clipped_min_x = ((clipped_min_x - intersects[0]) * (intersects[2] - intersects[3])) / (intersects[0] - intersects[1]) + intersects[2];
             double z_of_clipped_max_x = ((clipped_max_x - intersects[0]) * (intersects[2] - intersects[3])) / (intersects[0] - intersects[1]) + intersects[2];
 
@@ -882,24 +873,44 @@ int main()
 
                 double current_z = ((current_x - clipped_min_x) * (z_of_clipped_min_x - z_of_clipped_max_x)) / (clipped_min_x - clipped_max_x) + z_of_clipped_min_x;
 
-
                 // frame_buffer[j][k]=i;
-                if(current_z > front_limit_z && current_z < rear_limit_z && current_z < z_buffer[j][k] ){
+                if (current_z > front_limit_z && current_z < rear_limit_z && current_z < z_buffer[j][k])
+                {
                     image.set_pixel(k, j, triangle->color[0], triangle->color[1], triangle->color[2]);
-                    z_buffer[j][k]= current_z;
+                    z_buffer[j][k] = current_z;
                 }
 
                 // cout<<"current x: "<<current_x<<endl;
             }
         }
 
-        cout << "completed scan of triangle " << i << endl;
+        // cout << "completed scan of triangle " << i << endl;
 
         // if(i==6)break;
     }
 
+    //printing the z buffer to file
+    for (int i = 0; i < screen_height; i++)
+    {
+        for (int j = 0; j < screen_width; j++)
+        {
+            if (z_buffer[i][j] != rear_limit_z)
+            {
+                foutZbuffer << z_buffer[i][j] << '\t';
+            }
+        }
+        foutZbuffer << endl;
+    }
+
     image.save_image("out.bmp");
 
-
-
+    //free memory
+    for (int i = 0; i < screen_height; i++)
+    {
+        delete z_buffer[i];
+        delete frame_buffer[i];
+        
+    }
+    delete z_buffer;
+    delete frame_buffer;
 }
