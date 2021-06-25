@@ -1,4 +1,5 @@
 function randomString(length) {
+    // function to generate a random string of specified length
     var result = '';
     var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     var charactersLength = characters.length;
