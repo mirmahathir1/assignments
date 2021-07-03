@@ -17,6 +17,10 @@ int drawgrid;
 int drawaxes;
 double angle;
 
+int levelOfRecursion, numberOfObjects, numberOfLightSources;
+double imageSize;
+double windowHeight, windowWidth;
+
 #include "1605011_LinearAlgebra.hpp"
 #include "1605011_Shapes.hpp"
 #include "1605011_Object.hpp"
@@ -31,12 +35,10 @@ int movementSpeed = 3;
 #define viewAngle 80
 
 // inputs from files
-int levelOfRecursion, numberOfObjects, numberOfLightSources;
-double imageSize;
-double windowHeight, windowWidth;
 
-vector<Object *> objects;
-vector<Light *> lights;
+
+
+
 
 void drawSS()
 {
@@ -94,28 +96,6 @@ void capture()
 			color[2] = 0;
 
 			double t, tMin = INF;
-
-			// Object *o = objects.at(0);
-			// t = o->intersect(ray, color, 1);
-			// if (t != 99999 && t > 0 && t < tMin)
-			// {
-			// 	tMin = t;
-			// 	image.set_pixel(i, j, color[0] * 255, color[1] * 255, color[2] * 255);
-			// }
-
-			// o = objects.at(1);
-			// t = o->intersect(ray, color, 1);
-
-			// if(t!=99999 && t > 0){
-			// 	cout<<"TMIN: "<<tMin<<", t: "<<t<<"|";
-			// }
-
-			// if (t != 99999 && t > 0 && t < tMin)
-			// {
-			// 	tMin = t;
-			// 	image.set_pixel(i, j, color[0] * 255, color[1] * 255, color[2] * 255);
-			// }
-
 			for(int k = 0 ; k < objects.size(); k++){
 				Object* o = objects.at(k);
 				t = o->intersect(ray,color,1);
@@ -336,7 +316,7 @@ void animate()
 void loadData()
 {
 	Floor *floor = new Floor();
-	floor->setCoEfficients(0.4, 0.2, 0.1, 0.3);
+	floor->setCoEfficients(0.2, 0.3, 0.3, 0.2);
 	floor->setShine(5);
 	objects.push_back((Object *)floor);
 

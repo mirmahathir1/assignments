@@ -59,6 +59,10 @@ public:
 		return Vector((a.y * b.z) - (b.y * a.z), (b.x * a.z) - (a.x * b.z), (a.x * b.y) - (a.y * b.x));
 	}
 
+	Vector* crossProduct(Vector* b){
+		return new Vector((this->y * b->z) - (b->y * this->z), (b->x * this->z) - (this->x * b->z), (this->x * b->y) - (this->y * b->x));
+	}
+
 	void normalize()
 	{
 		GLdouble denominator = sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
@@ -79,12 +83,31 @@ public:
 		return new Vector(this->x - a->x, this->y - a->y, this->z - a->z);
 	}
 
+	Vector* add(Vector* a){
+		return new Vector(this->x + a->x, this->y + a->y, this->z + a->z);
+	}
+
 	// Vector* subtract(Point* a){
 	// 	return new Vector(this->x - a->x, this->y - a->y, this->z - a->z);
 	// }
 
 	double dot(Vector* a){
 		return this->x*a->x+this->y*a->y+this->z*a->z;
+	}
+
+	double abs(){
+		return sqrt(this->x*this->x+this->y*this->y+this->z*this->z);
+	}
+
+	Vector* negate(){
+		return new Vector(-this->x,-this->y, -this->z);
+	}
+
+	Vector* reflect(Vector* n){
+		// subtract(a, multiply(multiply(n, 2), dotProduct(a, n)));
+		n->normalize();
+		Vector* a = new Vector(this->x,this->y,this->z);
+		return a->subtract(n->multiply(2)->multiply(a->dot(n)));
 	}
 };
 

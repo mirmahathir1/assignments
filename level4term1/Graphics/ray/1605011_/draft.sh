@@ -1,0 +1,1 @@
+g++ draft.cpp -lGL -lGLU -lglut && ./a.out
