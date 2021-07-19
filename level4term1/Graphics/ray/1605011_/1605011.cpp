@@ -5,7 +5,7 @@
 #include <vector>
 #include <fstream>
 #include <GL/glut.h>
-#include "bitmap_image.hpp"
+#include "1605011_bitmap_image.hpp"
 using namespace std;
 
 #define pi (2 * acos(0.0))
@@ -86,8 +86,11 @@ void capture()
 
 	for (int i = 0; i < imageSize; i++)
 	{
+
+		cout<<"setting pixels of row: "<<i<<endl;
 		for (int j = 0; j < imageSize; j++)
 		{
+			
 			Vector *curPixel = top_left->sum(rightVector.multiply(i * du)->subtract(upVector.multiply(j * dv)));
 			Ray *ray = new Ray(new Vector(position.x, position.y, position.z), curPixel->subtract(new Vector(position.x, position.y, position.z)));
 			double *color = new double[3];
@@ -104,10 +107,15 @@ void capture()
 					image.set_pixel(i, j, color[0]*255, color[1]*255, color[2]*255);
 				}
 			}
+
+			delete ray;
+			delete color;
+			delete curPixel;
 		}
 	}
 
 	image.save_image("out.bmp");
+	cout<<"Photo successfully saved"<<endl;
 }
 
 void init()
@@ -437,6 +445,5 @@ int main(int argc, char **argv)
 	glutMouseFunc(mouseListener);
 
 	glutMainLoop(); //The main loop of OpenGL
-
 	return 0;
 }

@@ -8,12 +8,18 @@ public:
 	Vector *start, *dir;
 	Ray(Vector *start, Vector *dir)
 	{
-		this->start = start;
-		this->dir = dir;
+		// this->start = start;
+		// this->dir = dir;
+		this->start = new Vector(start->x,start->y, start->z);
+		this->dir = new Vector(dir->x,dir->y,dir->z);
 	}
 	Vector *getRayFromT(double t)
 	{
 		return this->start->sum(this->dir->multiply(t));
+	}
+	~Ray(){
+		delete start;
+		delete dir;
 	}
 };
 
@@ -197,9 +203,16 @@ public:
 					color[2] = min(1.0,color[2]+coEfficients[RECUR]*color_recurse[2]);
 				}
 			}
-
-			
+			delete color_recurse;
+			delete recursiveRay;
+			delete lightRay;
+			delete V;
+			delete R;
+			delete L;
 		}
+
+		delete translatedOrigin;
+		delete intersectionPoint;
 
 		
 
@@ -359,7 +372,16 @@ public:
 					color[2] = min(1.0,color[2]+coEfficients[RECUR]*color_recurse[2]);
 				}
 			}
+			delete color_recurse;
+			delete recursiveRay;
+			delete L;
+			delete V;
+			delete R;
+			delete lightRay;
 		}
+
+	
+		delete intersectionPoint;
 		return t;
 	}
 
@@ -369,8 +391,12 @@ public:
 		Vector *cp2 = b->subtract(a)->crossProduct(p2->subtract(a));
 		if (cp1->dot(cp2) >= 0)
 		{
+			delete cp1;
+			delete cp2;
 			return true;
 		}
+		delete cp1;
+		delete cp2;
 		return false;
 	}
 
@@ -481,7 +507,10 @@ public:
 	{
 		Vector *normal = new Vector(0, 0, 1);
 		double t = -(ray->start->dot(normal)) / (ray->dir->dot(normal));
-		Vector *intersection = ray->start->sum(ray->dir->multiply(t));
+		Vector* multiplied_ray_dir = ray->dir->multiply(t);
+		Vector *intersection = ray->start->sum(multiplied_ray_dir);
+		delete multiplied_ray_dir;
+
 		double tile_color = getColorOfPixel(intersection->x, intersection->y);
 		if (tile_color == -1)
 			return -1;
@@ -502,10 +531,13 @@ public:
 		for (int i = 0; i < lights.size(); i++)
 		{
 			Light *light = lights.at(i);
-			Ray *lightRay = new Ray(light->position, intersection->subtract(light->position));
+
+			
+			// Ray *lightRay = new Ray(light->position, intersection->subtract(light->position));
+			Vector* lightRayDirection = intersection->subtract(light->position);
 
 			Vector *V = ray->dir->negate();
-			Vector *R = lightRay->dir->reflect(normal);
+			Vector *R = lightRayDirection->reflect(normal);
 
 			double phong = R->dot(V) / (R->abs() * V->abs());
 
@@ -516,7 +548,7 @@ public:
 				color[2] = min(1.0, color[2] + light->color[2] * coEfficients[SPEC] * (pow(phong, shine)) * intersectionPoint_blue);
 			}
 
-			Vector *L = lightRay->dir->negate();
+			Vector *L = lightRayDirection->negate();
 			Vector *N = normal;
 
 			double lambert = L->dot(N) / (L->abs() * N->abs());
@@ -548,7 +580,18 @@ public:
 					color[2] = min(1.0,color[2]+coEfficients[RECUR]*color_recurse[2]);
 				}
 			}
+
+			delete lightRayDirection;
+			delete color_recurse;
+			delete recursiveRay;
+			delete L;
+			delete R;
+			delete V;
+		
 		}
+
+		delete intersection;
+		delete normal;
 
 		return t;
 	}
