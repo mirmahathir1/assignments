@@ -10,7 +10,7 @@ group by man_country;
 select sum(stock_quantity) from item_dim;
 
 select item_name, man_country, sum(stock_quantity)
-from fact_table 
+from item_dim 
 group by item_name, man_country;
 
 -- cross tabulation of fact_table by store_key and item_key
