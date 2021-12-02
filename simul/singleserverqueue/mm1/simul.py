@@ -405,7 +405,7 @@ def main():
         next_event_type
     print("Program started...")
 
-    infile = open('mm1.in', 'r')
+    infile = open('in/mm10.5.in', 'r')
     outfile = open('mm1.out', 'w')
 
     num_events = 2
