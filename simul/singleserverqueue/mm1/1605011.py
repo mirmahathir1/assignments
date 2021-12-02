@@ -1,71 +1,257 @@
-import numpy as np
 import random
 import math
-random.seed(11)
 import os
+import numpy as np
+import shutil
+
+np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
+
+random.seed(11)
 
 
 class MM1:
-    """
-    The symbolic constant Q_LIMIT is set to 100, our guess (which might
-    have to be
-    adjusted by trial and error) as to the longest the queue will ever
-    get. (As mentioned
-    earlier, this guess could be eliminated if we were using dynamic
-    storage allocation;
-    while C supports this, we have not used it in our examples.)
-    """
-    Q_LIMIT = 100
-    """
-    BUSY and IDLE are defi ned to be used with the server_status 
-    variable, for code 
-    readability
-    """
-    BUSY = 1
-    IDLE = 0
+    def get_random_variable_stats(self):
+        min_of_arrival_time_actual = np.min(self.interarrival_times_actual)
+        max_of_arrival_time_actual = np.max(self.interarrival_times_actual)
 
-    next_event_type = 0
-    num_custs_delayed = 0
-    num_delays_required = 0
-    num_events = 0
-    num_in_q = 0
-    server_status = 0
+        min_of_service_time_actual = np.min(self.service_times_actual)
+        max_of_service_time_actual = np.max(self.service_times_actual)
 
-    area_num_in_q = 0.0
-    area_server_status = 0.0
-    mean_interarrival = 0.0
-    mean_service = 0.0
-    sim_time = 0.0
-    time_arrival = [0] * (Q_LIMIT + 1)
-    time_last_event = 0.0
+        median_of_service_time_actual = np.median(self.service_times_actual)
+        median_of_arrival_time_actual = np.median(self.interarrival_times_actual)
 
-    """
-    Note also that the event list, as we have discussed it so far, 
-    will be implemented in an array called time_next_event, whose 0th 
-    entry will be ignored in order 
-    to make the index agree with the event type
-    """
-    time_next_event = [0] * 3
-    total_of_delays = 0
+        min_of_uniform = np.min(self.arrival_times_uniform + self.service_times_uniform)
+        max_of_uniform = np.max(self.arrival_times_uniform + self.service_times_uniform)
+        median_of_uniform = np.median(self.arrival_times_uniform + self.service_times_uniform)
 
-    """
-    File pointers *infile and *outfile are defined to allow us to open 
-    the 
-    input and output fi les from within the code, rather than at the 
-    operating-system 
-    level
-    """
-    infile = None
-    outfile = None
+        cut_bins_of_uniform = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+
+        beta_interarrival = self.mean_interarrival
+        beta_service = self.mean_service
+        cut_bins_of_actual_arrival = [0, beta_interarrival / 2, beta_interarrival, 2 * beta_interarrival,
+                                      3 * beta_interarrival, 1000]
+        cut_bins_of_actual_service = [0, beta_service / 2, beta_service, 2 * beta_service, 3 * beta_service, 1000]
+
+        bins_of_actual_arrival = {}
+        for i in range(1, len(cut_bins_of_actual_arrival)):
+            bins_of_actual_arrival[cut_bins_of_actual_arrival[i]] = 0
+        bins_of_actual_service = {}
+        for i in range(1, len(cut_bins_of_actual_service)):
+            bins_of_actual_service[cut_bins_of_actual_service[i]] = 0
+        bins_of_uniform = {}
+        for i in range(1, len(cut_bins_of_uniform)):
+            bins_of_uniform[cut_bins_of_uniform[i]] = 0
+
+        for actual_arrival in self.interarrival_times_actual:
+            for i in range(1, len(cut_bins_of_actual_arrival)):
+                if cut_bins_of_actual_arrival[i - 1] <= actual_arrival <= cut_bins_of_actual_arrival[i]:
+                    bins_of_actual_arrival[cut_bins_of_actual_arrival[i]] += 1
+                    break
+        # print(bins_of_actual_arrival)
+
+        for actual_service in self.service_times_actual:
+            for i in range(1, len(cut_bins_of_actual_service)):
+                if cut_bins_of_actual_service[i - 1] <= actual_service <= cut_bins_of_actual_service[i]:
+                    bins_of_actual_service[cut_bins_of_actual_service[i]] += 1
+                    break
+        # print(bins_of_actual_service)
+
+        for uniform_arrival in self.arrival_times_uniform:
+            for i in range(1, len(cut_bins_of_uniform)):
+                if cut_bins_of_uniform[i - 1] <= uniform_arrival <= cut_bins_of_uniform[i]:
+                    bins_of_uniform[cut_bins_of_uniform[i]] += 1
+                    break
+        for uniform_service in self.service_times_uniform:
+            for i in range(1, len(cut_bins_of_uniform)):
+                if cut_bins_of_uniform[i - 1] <= uniform_service <= cut_bins_of_uniform[i]:
+                    bins_of_uniform[cut_bins_of_uniform[i]] += 1
+                    break
+        # print(bins_of_uniform)
+
+        probability_of_actual_arrival = {}
+        probability_of_actual_service = {}
+        probability_of_uniform = {}
+
+        count_actual_arrival = len(self.interarrival_times_actual)
+        count_actual_service = len(self.interarrival_times_actual)
+        count_uniform = count_actual_arrival + count_actual_service
+
+        for key in bins_of_actual_arrival.keys():
+            probability_of_actual_arrival[key] = bins_of_actual_arrival[key] / count_actual_arrival
+        # print(probability_of_actual_arrival)
+
+        for key in bins_of_actual_service.keys():
+            probability_of_actual_service[key] = bins_of_actual_service[key] / count_actual_service
+        # print(probability_of_actual_service)
+
+        for key in bins_of_uniform.keys():
+            probability_of_uniform[key] = bins_of_uniform[key] / count_uniform
+        # print(probability_of_uniform)
+
+        cumulative_probability_of_actual_arrival = {}
+        cumulative_probability_of_actual_service = {}
+        cumulative_probability_of_uniform = {}
+
+        keys_of_actual_arrival = probability_of_actual_arrival.keys()
+        keys_of_actual_service = probability_of_actual_service.keys()
+        keys_of_uniform = probability_of_uniform.keys()
+
+        for i, key in enumerate(keys_of_actual_arrival):
+            cumulation = 0
+            for j, keyJ in enumerate(keys_of_actual_arrival):
+                if j <= i:
+                    cumulation += probability_of_actual_arrival[keyJ]
+            cumulative_probability_of_actual_arrival[key] = cumulation
+        # print(cumulative_probability_of_actual_arrival)
+
+        for i, key in enumerate(keys_of_actual_service):
+            cumulation = 0
+            for j, keyJ in enumerate(keys_of_actual_service):
+                if j <= i:
+                    cumulation += probability_of_actual_service[keyJ]
+            cumulative_probability_of_actual_service[key] = cumulation
+        # print(cumulative_probability_of_actual_service)
+
+        for i, key in enumerate(keys_of_uniform):
+            cumulation = 0
+            for j, keyJ in enumerate(keys_of_uniform):
+                if j <= i:
+                    cumulation += probability_of_uniform[keyJ]
+            cumulative_probability_of_uniform[key] = cumulation
+        # print(cumulative_probability_of_uniform)
+
+        return {
+            'min_of_actual_service': min_of_service_time_actual,
+            'max_of_actual_service': max_of_service_time_actual,
+            'median_of_actual_service': median_of_service_time_actual,
+            'probability_of_service': probability_of_actual_service,
+            'cumulative_probability_of_service': cumulative_probability_of_actual_service,
+
+            'min_of_actual_arrival': min_of_arrival_time_actual,
+            'max_of_actual_arrival': max_of_arrival_time_actual,
+            'median_of_actual_arrival': median_of_arrival_time_actual,
+            'probability_of_arrival': probability_of_actual_arrival,
+            'cumulative_probability_of_arrival': cumulative_probability_of_actual_arrival,
+
+            'min_of_uniform': min_of_uniform,
+            'max_of_uniform': max_of_uniform,
+            'median_of_uniform': median_of_uniform,
+            'probability_of_uniform': probability_of_uniform,
+            'cumulative_probability_of_uniform': cumulative_probability_of_uniform
+        }
+
+    def generate_random_variable_stats_report(self):
+        random_variable_stats = self.get_random_variable_stats()
+        outfile = open(
+            f'{os.path.join("out", "mm1+random_variable" + str(self.mean_interarrival) + "+" + str(self.mean_service) + "+" + str(self.num_delays_required))}".out"',
+            "w")
+        print("Status on Interarrival Time A: ", file=outfile)
+        print(f'Min(A): {random_variable_stats["min_of_actual_arrival"]}', file=outfile)
+        print(f'Max(A): {random_variable_stats["max_of_actual_arrival"]}', file=outfile)
+        print(f'Median(A):  {random_variable_stats["median_of_actual_arrival"]}', file=outfile)
+        print(f'P(A):', file=outfile)
+        for i, key in enumerate(random_variable_stats["probability_of_arrival"]):
+            print(f'< {key} = \t{random_variable_stats["probability_of_arrival"][key]}', file=outfile)
+        print(f'F(A):', file=outfile)
+        for i, key in enumerate(random_variable_stats["cumulative_probability_of_arrival"]):
+            print(f'< {key} = \t{random_variable_stats["cumulative_probability_of_arrival"][key]}', file=outfile)
+        print("_"*100, file=outfile)
+        print("Status on Service Time S: ", file=outfile)
+        print(f'Min(S): {random_variable_stats["min_of_actual_service"]}', file=outfile)
+        print(f'Max(S): {random_variable_stats["max_of_actual_service"]}', file=outfile)
+        print(f'Median(S): {random_variable_stats["median_of_actual_service"]}', file=outfile)
+        print(f'P(S):', file=outfile)
+        for i, key in enumerate(random_variable_stats["probability_of_service"]):
+            print(f'< {key} = \t{random_variable_stats["probability_of_service"][key]}', file=outfile)
+        print(f'F(S):', file=outfile)
+        for i, key in enumerate(random_variable_stats["cumulative_probability_of_service"]):
+            print(f'< {key} = \t{random_variable_stats["cumulative_probability_of_service"][key]}', file=outfile)
+        print("_" * 100, file=outfile)
+        print("Status on Uniform Random Variable U: ", file=outfile)
+        print(f'Min(U): {random_variable_stats["min_of_uniform"]}',file=outfile)
+        print(f'Max(U): {random_variable_stats["max_of_uniform"]}', file=outfile)
+        print(f'Median(U): {random_variable_stats["median_of_uniform"]}', file=outfile)
+        print(f'P(U):', file=outfile)
+        for i, key in enumerate(random_variable_stats["probability_of_uniform"]):
+            print(f'< {key} = \t{random_variable_stats["probability_of_uniform"][key]}', file=outfile)
+        print(f'F(U):', file=outfile)
+        for i, key in enumerate(random_variable_stats["cumulative_probability_of_uniform"]):
+            print(f'< {key} = \t{random_variable_stats["cumulative_probability_of_uniform"][key]}', file=outfile)
+        outfile.close()
 
     def __init__(self, mean_interarrival, mean_service, num_delays_required):
+        """
+            The symbolic constant Q_LIMIT is set to 100, our guess (which might
+            have to be
+            adjusted by trial and error) as to the longest the queue will ever
+            get. (As mentioned
+            earlier, this guess could be eliminated if we were using dynamic
+            storage allocation;
+            while C supports this, we have not used it in our examples.)
+            """
+        self.Q_LIMIT = 100
+        """
+        BUSY and IDLE are defi ned to be used with the server_status 
+        variable, for code 
+        readability
+        """
+        self.BUSY = 1
+        self.IDLE = 0
+
+        self.next_event_type = 0
+        self.num_custs_delayed = 0
+        self.num_delays_required = 0
+        self.num_events = 0
+        self.num_in_q = 0
+        self.server_status = 0
+
+        self.area_num_in_q = 0.0
+        self.area_server_status = 0.0
+        self.mean_interarrival = 0.0
+        self.mean_service = 0.0
+        self.sim_time = 0.0
+        self.time_arrival = [0] * (self.Q_LIMIT + 1)
+        self.time_last_event = 0.0
+
+        """
+        Note also that the event list, as we have discussed it so far, 
+        will be implemented in an array called time_next_event, whose 0th 
+        entry will be ignored in order 
+        to make the index agree with the event type
+        """
+        self.time_next_event = [0] * 3
+        self.total_of_delays = 0
+
+        """
+        File pointers *infile and *outfile are defined to allow us to open 
+        the 
+        input and output fi les from within the code, rather than at the 
+        operating-system 
+        level
+        """
+        self.infile = None
+        self.outfile = None
+
+        self.arrival_times_uniform = []
+        self.service_times_uniform = []
+        self.interarrival_times_actual = []
+        self.service_times_actual = []
+
         self.num_delays_required = num_delays_required
         self.mean_interarrival = mean_interarrival
         self.mean_service = mean_service
-        pass
 
-    def expon(self, mean):
-        return -mean * math.log(random.uniform(0, 1))
+    def get_sample(self, mean, arrival=True):
+        uniform_random_sample = random.uniform(0, 1)
+        actual_random_sample = -mean * math.log(uniform_random_sample)
+        if arrival:
+            self.arrival_times_uniform.append(uniform_random_sample)
+            self.interarrival_times_actual.append(actual_random_sample)
+        else:
+            self.service_times_uniform.append(uniform_random_sample)
+            self.service_times_actual.append(actual_random_sample)
+
+        return actual_random_sample
 
     def initialize(self):
         # print("inside initialize")
@@ -116,7 +302,7 @@ class MM1:
         random variate with mean mean_interarrival, namely, 
         expon(mean_interarrival), to the simulation clock
         """
-        next_arrival_time = self.sim_time + self.expon(self.mean_interarrival)
+        next_arrival_time = self.sim_time + self.get_sample(self.mean_interarrival, arrival=True)
         self.time_next_event[1] = next_arrival_time
         # print(f"next arrival event time is updated to {next_arrival_time}")
 
@@ -141,6 +327,9 @@ class MM1:
         self.total_of_delays = 0.0
         self.area_num_in_q = 0.0
         self.area_server_status = 0.0
+
+        self.arrival_times_uniform = []
+        self.service_times_uniform = []
 
     def timing(self):
         # print("inside timing")
@@ -231,7 +420,7 @@ class MM1:
         on the time_next_event matrix at index 1
         """
         # print(f"customer arrived at sim_time: {self.sim_time}")
-        next_arrival_time = self.sim_time + self.expon(self.mean_interarrival)
+        next_arrival_time = self.sim_time + self.get_sample(self.mean_interarrival, arrival=True)
         self.time_next_event[1] = next_arrival_time
         # print(f"next arrival event time is updated to {next_arrival_time}")
         if self.server_status == self.BUSY:
@@ -296,7 +485,7 @@ class MM1:
             """
             self.server_status = self.BUSY
             # print("server_status is now BUSY")
-            next_departure_time = self.sim_time + self.expon(self.mean_service)
+            next_departure_time = self.sim_time + self.get_sample(self.mean_service, arrival=False)
             self.time_next_event[2] = next_departure_time
             # print(f"next departure event time is updated to {next_departure_time}")
             """
@@ -360,7 +549,7 @@ class MM1:
             the time of the next departure (that of customer 2) in the 
             event list is updated to S2 time units from now
             """
-            next_departure_time = self.sim_time + self.expon(self.mean_service)
+            next_departure_time = self.sim_time + self.get_sample(self.mean_service, arrival=False)
             self.time_next_event[2] = next_departure_time
             # print(f"next departure event time is updated to {next_departure_time}")
 
@@ -396,7 +585,9 @@ class MM1:
     def run(self):
         # print("Program started...")
 
-        self.outfile = open(f'out/mm1+{self.mean_interarrival}+{self.mean_service}+{self.num_delays_required}.out', 'w')
+        self.outfile = open(
+            f'{os.path.join("out", "mm1+" + str(self.mean_interarrival) + "+" + str(self.mean_service) + "+" + str(self.num_delays_required))}".out"',
+            "w")
 
         self.num_events = 2
 
@@ -447,8 +638,9 @@ class MM1:
 
 
 if __name__ == "__main__":
+    shutil.rmtree('out', ignore_errors=True)
     if not os.path.exists('out'):
-        os.mkdir('out',)
+        os.mkdir('out', )
 
     fileNames = [f for f in os.listdir('in') if os.path.isfile(os.path.join('in', f))]
     fileNames.sort()
@@ -467,11 +659,16 @@ if __name__ == "__main__":
         mm1 = MM1(config['mean_interarrival'], config['mean_service'], config['num_delays_required'])
         mm1.run()
         stats.append(mm1.get_stats())
-        # print(mm1.get_stats())
+        mm1.generate_random_variable_stats_report()
 
-    print("_"*100)
-    print("k\t\taverage delay\t\taverage number\t\tserver util\t\t\tsimulation time")
-    print("_" * 100)
+    overall_report = open(f'{os.path.join("out","report.out")}',"w")
+    print("_" * 100, file=overall_report)
+    print("k\t\taverage delay\t\taverage number\t\tserver util\t\t\tsimulation time", file=overall_report)
+    print("_" * 100, file=overall_report)
     for stat in stats:
-        print(f"{stat['mean_service_time']}\t\t{stat['average_delay']}\t{stat['average_num_in_q']}\t{stat['server_utilization']}\t{stat['simulation_time']}")
-    print("_" * 100)
+        print(
+            f"{stat['mean_service_time']}\t\t{stat['average_delay']}\t{stat['average_num_in_q']}\t{stat['server_utilization']}\t{stat['simulation_time']}", file=overall_report)
+    print("_" * 100, file=overall_report)
+    overall_report.close()
+
+
