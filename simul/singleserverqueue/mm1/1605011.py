@@ -143,7 +143,7 @@ class MM1:
     def generate_random_variable_stats_report(self):
         random_variable_stats = self.get_random_variable_stats()
         outfile = open(
-            f'{os.path.join("out", "mm1+random_variable" + str(self.mean_interarrival) + "+" + str(self.mean_service) + "+" + str(self.num_delays_required))}".out"',
+            f'{os.path.join("out", "mm1+random_variable" + str(self.mean_interarrival) + "+" + str(self.mean_service) + "+" + str(self.num_delays_required))}.out',
             "w")
         print("Status on Interarrival Time A: ", file=outfile)
         print(f'Min(A): {random_variable_stats["min_of_actual_arrival"]}', file=outfile)
@@ -586,7 +586,7 @@ class MM1:
         # print("Program started...")
 
         self.outfile = open(
-            f'{os.path.join("out", "mm1+" + str(self.mean_interarrival) + "+" + str(self.mean_service) + "+" + str(self.num_delays_required))}".out"',
+            f'{os.path.join("out", "mm1+" + str(self.mean_interarrival) + "+" + str(self.mean_service) + "+" + str(self.num_delays_required))}.out',
             "w")
 
         self.num_events = 2
