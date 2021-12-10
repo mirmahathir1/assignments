@@ -157,6 +157,8 @@ def load(column_count=10):
     # %%
     keeping_attributes = []
 
+    column_count = min(column_count, len(X_dataframe.columns))
+
     for info in sorted_attributes[:column_count]:
         keeping_attributes.append(info["column"])
     X_dataframe = X_dataframe[keeping_attributes]

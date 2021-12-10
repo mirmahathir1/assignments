@@ -1,6 +1,5 @@
 import numpy as np
-import random
-
+np.random.seed(seed=42)
 class LogisticRegression:
     def __init__(self):
         self.weights = []
@@ -26,6 +25,9 @@ class LogisticRegression:
             gradient = np.matmul(X.T, np.multiply(y_original_scaled - y_hat, 1 - y_hat ** 2))
             self.weights += learning_rate * gradient
             loss = self.loss(y_original_scaled, np.tanh(np.dot(X, self.weights)))
+            # if loss < 0.5:
+            #     print(f"early terminate at epoch {epoch}")
+            #     break
             if epoch % 100 == 0:
                 print(f"Epoch {epoch}. Loss= {loss}")
             losses.append(loss)

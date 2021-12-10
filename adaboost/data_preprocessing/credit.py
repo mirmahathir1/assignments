@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import mutual_info_classif
 import random
-
+random.seed(42)
 def load(column_count = 25):
     dataframe = pd.read_csv('data/credit/creditcard.csv')
     dataframe.head(5)
@@ -61,6 +61,9 @@ def load(column_count = 25):
         })
 
     sorted_attributes = sorted(information_gains, key=lambda d: d['information'], reverse=True)
+
+    column_count = min(column_count, len(X_dataframe.columns))
+
     keeping_attributes = []
     for info in sorted_attributes[:column_count]:
         keeping_attributes.append(info["column"])

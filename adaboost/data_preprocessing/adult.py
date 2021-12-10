@@ -134,7 +134,7 @@ def load(column_count = 50):
             continue
         one_hot_encoded = pd.get_dummies(dataframe[col], prefix=col, prefix_sep='_', drop_first=True, dtype=int)
         dataframe = dataframe.join(one_hot_encoded)
-        dataframe = dataframe.drop(col,axis = 1)
+        dataframe = dataframe.drop(col, axis = 1)
     #%%
     print(f"current column count: {len(dataframe.columns)}")
     print(f"current column names: {dataframe.columns}")
@@ -165,6 +165,9 @@ def load(column_count = 50):
 
     sorted_attributes = sorted(information_gains, key=lambda d: d['information'], reverse=True)
     keeping_attributes = []
+
+    column_count = min(column_count, len(X_dataframe.columns))
+
     for info in sorted_attributes[:column_count]:
         keeping_attributes.append(info["column"])
     #%%

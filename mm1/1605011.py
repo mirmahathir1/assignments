@@ -6,7 +6,7 @@ import shutil
 
 np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
-random.seed(11)
+
 
 
 class MM1:
