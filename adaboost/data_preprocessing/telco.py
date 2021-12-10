@@ -4,11 +4,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import mutual_info_classif
 
-def load(column_count):
-    if not column_count:
-        print("Please specify column count")
-        exit(1)
-
+def load(column_count=10):
     print("Load telco dataset")
     dataframe = pd.read_csv('data/telco-customer-churn/WA_Fn-UseC_-Telco-Customer-Churn.csv')
 
@@ -150,7 +146,7 @@ def load(column_count):
     for column in X_dataframe.columns:
         single_column = X_dataframe[column].to_numpy()
         single_column = single_column.reshape((single_column.shape[0], 1))
-        information_gain = mutual_info_classif(single_column, Y_dataframe)[0]
+        information_gain = mutual_info_classif(single_column, Y_dataframe, random_state=42)[0]
         # print(f"information gain of {column}: {information_gain}")
         information_gains.append({
             "column": column,
