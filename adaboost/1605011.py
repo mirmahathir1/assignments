@@ -600,6 +600,8 @@ def main():
         W_data_weights = W_data_weights / np.sum(W_data_weights)
         Z_model_weights[k] = np.log((1 - error) / error)
 
+    Z_model_weights = Z_model_weights / np.sum(Z_model_weights)
+    print(f"Weights of all ensemble models: {Z_model_weights}")
     # %%
     weighted_predictions_test = np.zeros((K_ensembles, X_test.shape[0]))
     for i in range(K_ensembles):
