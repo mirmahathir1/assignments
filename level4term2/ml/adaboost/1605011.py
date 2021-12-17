@@ -1,4 +1,5 @@
 # %%
+# python 1605011.py --rounds 5 --dataset adult --epochs 2000 --feature_count 9999 --learning_rate 0.0001 --test_split 0.1
 import argparse
 from sklearn.model_selection import train_test_split
 from numpy.random import choice
@@ -17,6 +18,7 @@ parser.add_argument('--dataset', type=str, help='Number of rounds for adaboost')
 parser.add_argument('--epochs', type=int, help='Number of epochs for training')
 parser.add_argument('--feature_count', type=int, help='Number of features to train on')
 parser.add_argument('--learning_rate', type=float, help='Learning rate of algorithm')
+parser.add_argument('--test_split', type=float, help='Test ratio')
 
 args = parser.parse_args()
 if not args.rounds:
@@ -39,6 +41,10 @@ if not args.learning_rate:
     print("Learning rate is required")
     exit(0)
 
+if not args.test_split:
+    print("test_split is required")
+    exit(0)
+
 datasets_available = ['adult', 'credit', 'telco']
 
 if args.dataset not in datasets_available:
@@ -53,7 +59,7 @@ random.seed(42)
 
 def adult_data_load(column_count=50):
     # %%
-    data_file = open('data/adult/adult.data', mode='r')
+    data_file = open('data/adult.data', mode='r')
     whole_csv = data_file.read()
     # the dataset consists of abundant useless whitespaces
     whole_csv = whole_csv.replace(' ', '')
@@ -558,7 +564,7 @@ def main():
         exit(0)
 
     (X, Y) = data_loader(column_count=args.feature_count)
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.20, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=args.test_split, random_state=42)
 
     # %%
     K_ensembles = args.rounds  # number of hypotheses
