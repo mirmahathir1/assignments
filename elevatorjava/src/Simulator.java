@@ -78,11 +78,12 @@ public class Simulator {
     public Random rand = new Random();
     public String methodString = "";
 
-    public static int randInt(int min, int max) {
-        return ThreadLocalRandom.current().nextInt(min, max + 1);
+    public int randInt(int min, int max) {
+        return rand.nextInt((max - min) + 1) + min;
     }
 
     public Simulator() {
+        rand.setSeed(48);
         // step 1
         between = new double[TOTAL_MAX_CUSTOMERS + 1];
         floor = new int[TOTAL_MAX_CUSTOMERS + 1];
