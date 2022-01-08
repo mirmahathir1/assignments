@@ -1,13 +1,14 @@
 import javax.swing.plaf.synth.SynthLookAndFeel;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Simulator {
-    public final int TOTAL_MAX_CUSTOMERS = 10000;
+    public final int TOTAL_MAX_CUSTOMERS = 1000000;
     public final int TOTAL_ELEVATORS = 4;
     public final int TOTAL_FLOORS = 12;
     public final int MAX_OCCUPANCY = 12;
@@ -20,42 +21,53 @@ public class Simulator {
     public final int CLOSE_TIME_OF_DOOR = 3;
     public final int TOTAL_TIME_OF_SIMULATION = 10000;
     public final double MEAN_INTERARRIVAL_TIME = 1.5;
+    public final int MAX_BATCH_SIZE = 6;
 
-    public int DELTIME = 0;
-    public float ELEVTIME = 0;
-    public int MAXDEL = 0;
+
+    public double DELTIME = 0;
+    public double ELEVTIME = 0;
+    public double MAXDEL = 0;
     public int MAXELEV = 0;
     public int QUELEN = 0;
+    public double SUM_OF_QUELEN = 0;
+    public double QUE_LENGTH_COUNTER = 0;
     public int QUETIME = 0;
-    public int MAXQUE = 0;
+    public double MAXQUE = 0;
+    public double SUM_OF_QUETIME = 0;
+    public double COUNT_OF_QUETIME = 0;
     public int quetotal = 0;
     public int remain = 0;
 
-    public int[] between;
+    // these three are counted from floor 1
+    public double[] load_count = new double[TOTAL_ELEVATORS+1];
+    public double[] max_load = new double[TOTAL_ELEVATORS+1];
+    public double[] total_load = new double[TOTAL_ELEVATORS+1];
+
+    public double[] between;
     public int[] floor;
-    public int[] delivery;
+    public double[] delivery;
     public int[] first;
     public int[] occup;
     public int[][] selvec;
     public int[][] flrvec;
     public int[] elevator;
     public int[] eldel;
-    public int[] arrive;
+    public double[] arrive;
 
     public int i = 0;
     public int j = 0;
     public int k = 0;
 
-    public int TIME;
-    public int[] return_to_ground;
+    public double TIME;
+    public double[] return_to_ground;
     public int[] stop;
     public int[] operate;
-    public int[] wait;
+    public double[] wait;
 
     public int limit = 0;
 
     public int quecust = 0;
-    public int startque = 0;
+    public double startque = 0;
     public int queue = 0;
     public int R;
 
@@ -72,14 +84,25 @@ public class Simulator {
 
     public Simulator() {
         // step 1
-        between = new int[TOTAL_MAX_CUSTOMERS + 1];
+        between = new double[TOTAL_MAX_CUSTOMERS + 1];
         floor = new int[TOTAL_MAX_CUSTOMERS + 1];
-        delivery = new int[TOTAL_MAX_CUSTOMERS + 1];
+        delivery = new double[TOTAL_MAX_CUSTOMERS + 1];
 
+        int batch_size = 0;
         for (int c = 0; c < TOTAL_MAX_CUSTOMERS + 1; c++) {
-            between[c] = randInt(1, MAX_BETWEEN_TIME);
+            if(batch_size!=0){
+                between[c] = 0;
+            }else{
+                between[c] = getNext()*60;
+            }
+
+            if(batch_size==0){
+                batch_size = randInt(1,MAX_BATCH_SIZE);
+            }
+
             floor[c] = randInt(2, TOTAL_FLOORS);
             delivery[c] = 0;
+            batch_size--;
         }
 
         first = new int[TOTAL_ELEVATORS + 1];
@@ -94,7 +117,7 @@ public class Simulator {
         }
         elevator = new int[TOTAL_MAX_CUSTOMERS + 1];
         eldel = new int[TOTAL_ELEVATORS + 1];
-        arrive = new int[TOTAL_MAX_CUSTOMERS + 1];
+        arrive = new double[TOTAL_MAX_CUSTOMERS + 1];
 
         // step 2
         i = 1;
@@ -102,23 +125,23 @@ public class Simulator {
 
         // step 3
         TIME = between[i];
-        return_to_ground = new int[TOTAL_ELEVATORS + 1];
+        return_to_ground = new double[TOTAL_ELEVATORS + 1];
         for (int c = 0; c < TOTAL_ELEVATORS + 1; c++) {
             return_to_ground[c] = TIME;
         }
         stop = new int[TOTAL_ELEVATORS + 1];
         operate = new int[TOTAL_ELEVATORS + 1];
-        wait = new int[TOTAL_MAX_CUSTOMERS + 1];
+        wait = new double[TOTAL_MAX_CUSTOMERS + 1];
         j = 0;
 
 
     }
 
     public double getNext() {
-        return Math.log(1 - rand.nextDouble()) / (-MEAN_INTERARRIVAL_TIME);
+        return - MEAN_INTERARRIVAL_TIME * Math.log(rand.nextDouble());
     }
 
-    public void handleFirstAvailablePlayer() {
+    public void handleFirstAvailableCustomer() {
         // step 5
         j = 0;
         if (TIME >= return_to_ground[1]) {
@@ -186,9 +209,19 @@ public class Simulator {
         }
 
     }
+    public void check_load(){
+        total_load[j] += occup[j];
+        if(occup[j] ==  MAX_OCCUPANCY){
+            max_load[j] ++;
+        }
+        load_count[j]++;
+    }
 
     public void calculateTimeSpentOnElevator() {
         // step 11
+        //check load
+        check_load();
+
         k = first[j];
         jumpedFrom30 = false;
         goTo("getTimeOfOneCustomerOnElevator");
@@ -269,7 +302,7 @@ public class Simulator {
 
     public void repeatLoopToGetFirstAvailableElevator() {
         //step 18
-        goTo("handleFirstAvailablePlayer");
+        goTo("handleFirstAvailableCustomer");
     }
 
     public void initializeQueue() {
@@ -316,10 +349,14 @@ public class Simulator {
         if (remain <= 0) {
             R = i;
             occup[j] = queue;
+
         } else {
             R = quecust + (MAX_OCCUPANCY - 1);
             occup[j] = MAX_OCCUPANCY;
         }
+
+        check_load();
+
         // step 24
         for (int k = quecust; k <= R; k++) {
             selvec[j][floor[k]] = 1;
@@ -329,6 +366,9 @@ public class Simulator {
         if (queue >= QUELEN) {
             QUELEN = queue;
         }
+        SUM_OF_QUELEN += queue;
+        QUE_LENGTH_COUNTER++;
+
         // step 26
         int sumOfTimeSubArrive = 0;
         for (int m = quecust; m <= R; m++) {
@@ -338,6 +378,8 @@ public class Simulator {
         QUETIME = QUETIME + sumOfTimeSubArrive;
 
         // step 27
+        SUM_OF_QUETIME += (TIME - startque );
+        COUNT_OF_QUETIME++;
         if (TIME - startque >= MAXQUE) {
             MAXQUE = TIME - startque;
         }
@@ -392,18 +434,27 @@ public class Simulator {
 
         // step 35
         System.out.println("The number of customers waiting in the longest queue: " + QUELEN);
+        System.out.println("Average number of customers in the queue: "+ SUM_OF_QUELEN / QUE_LENGTH_COUNTER);
         System.out.println("The average time a customer who waits in line spends in a queue: " + (QUETIME * 1.0 / quetotal));
         System.out.println("The longest time spent in a queue: " + MAXQUE);
+        System.out.println("Average time spent in a queue: "+(SUM_OF_QUETIME/COUNT_OF_QUETIME));
 
         // step 36
         System.out.println("The total number of stops for each elevator and the percentage time each elevator is in transport: ");
         for (int k = 1; k <= 4; k++) {
-            System.out.println("k=" + k + ": stop count: " + stop[k] + ", in transport portion: " + ((operate[k] / (TOTAL_TIME_OF_SIMULATION * 1.0)) * 100) + "%");
+            double operationPortion = ((operate[k] / (TOTAL_TIME_OF_SIMULATION * 1.0)) * 100);
+            System.out.println("k=" + k + ": stop count: " + stop[k] + ", in transport portion: " + operationPortion + "%");
+            System.out.println("available time: "+(100-operationPortion)+" %");
+            System.out.println("number of times max load occured: "+ max_load[k]);
+            System.out.println("number of times elevator left floor 1: " + load_count[k]);
+            System.out.println("number of total load: "+ total_load[k]);
+            System.out.println("number of average load from floor 1: "+ total_load[k]/load_count[k]);
+
         }
     }
 
     public void run() {
-        goTo("handleFirstAvailablePlayer");
+        goTo("handleFirstAvailableCustomer");
 
         // step 4
         while (TIME <= TOTAL_TIME_OF_SIMULATION) {
