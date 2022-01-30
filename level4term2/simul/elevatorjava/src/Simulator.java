@@ -1,4 +1,5 @@
 import javax.swing.plaf.synth.SynthLookAndFeel;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -8,20 +9,20 @@ import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Simulator {
-    public final int TOTAL_MAX_CUSTOMERS = 1000000;
-    public final int TOTAL_ELEVATORS = 4;
-    public final int TOTAL_FLOORS = 12;
-    public final int MAX_OCCUPANCY = 12;
-    public final int MAX_BETWEEN_TIME = 25;
-    public final int TIME_DELAY_TO_WAIT_FOR_PASSENGER = 15;
-    public final int TIME_TO_TRAVEL_BETWEEN_FLOORS = 5;
-    public final int TIME_FOR_A_PASSENGER_TO_DISEMBARK = 3;
-    public final int TIME_FOR_A_PASSENGER_TO_EMBARK = 3;
-    public final int OPEN_TIME_OF_DOOR = 3;
-    public final int CLOSE_TIME_OF_DOOR = 3;
-    public final int TOTAL_TIME_OF_SIMULATION = 10000;
-    public final double MEAN_INTERARRIVAL_TIME = 1.5;
-    public final int MAX_BATCH_SIZE = 6;
+    public int TOTAL_MAX_CUSTOMERS = 1000000;
+    public int TOTAL_ELEVATORS = 4;
+    public int TOTAL_FLOORS = 12;
+    public int MAX_OCCUPANCY = 12;
+    public int MAX_BETWEEN_TIME = 25;
+    public int TIME_DELAY_TO_WAIT_FOR_PASSENGER = 15;
+    public int TIME_TO_TRAVEL_BETWEEN_FLOORS = 5;
+    public int TIME_FOR_A_PASSENGER_TO_DISEMBARK = 3;
+    public int TIME_FOR_A_PASSENGER_TO_EMBARK = 3;
+    public int OPEN_TIME_OF_DOOR = 3;
+    public int CLOSE_TIME_OF_DOOR = 3;
+    public int TOTAL_TIME_OF_SIMULATION = 10000;
+    public double MEAN_INTERARRIVAL_TIME = 1.5;
+    public int MAX_BATCH_SIZE = 6;
 
 
     public double DELTIME = 0;
@@ -82,9 +83,47 @@ public class Simulator {
         return rand.nextInt((max - min) + 1) + min;
     }
 
-    public Simulator() {
-        rand.setSeed(48);
+    public Simulator(int randSeed) {
+        rand.setSeed(randSeed);
         // step 1
+        File text = new File("input.txt");
+
+        //Creating Scanner instance to read File in Java
+        Scanner fileScanner = null;
+        try{
+            fileScanner= new Scanner(text);
+        }catch (Exception e){
+            e.printStackTrace();
+            System.exit(1);
+        }
+        System.out.println("printing config...");
+        TIME = fileScanner.nextInt();
+        System.out.println("simulation termination time: "+TIME);
+        TOTAL_FLOORS = fileScanner.nextInt();
+        System.out.println("number of floors: "+TOTAL_FLOORS);
+        TOTAL_ELEVATORS = fileScanner.nextInt();
+        System.out.println("elevators: "+TOTAL_ELEVATORS);
+        MAX_OCCUPANCY = fileScanner.nextInt();
+        System.out.println("capacity: "+MAX_OCCUPANCY);
+        MAX_BATCH_SIZE = fileScanner.nextInt();
+        System.out.println("batch size: "+MAX_BATCH_SIZE);
+        TIME_DELAY_TO_WAIT_FOR_PASSENGER = fileScanner.nextInt();
+        System.out.println("door holding time: "+TIME_DELAY_TO_WAIT_FOR_PASSENGER);
+        TIME_TO_TRAVEL_BETWEEN_FLOORS = fileScanner.nextInt();
+        System.out.println("inter-floor traveling time: "+TIME_TO_TRAVEL_BETWEEN_FLOORS);
+        OPEN_TIME_OF_DOOR = fileScanner.nextInt();
+        System.out.println("opening time: "+OPEN_TIME_OF_DOOR);
+        CLOSE_TIME_OF_DOOR = fileScanner.nextInt();
+        System.out.println("closing time: "+CLOSE_TIME_OF_DOOR);
+        TIME_FOR_A_PASSENGER_TO_EMBARK = fileScanner.nextInt();
+        System.out.println("passenger embarking time: "+TIME_FOR_A_PASSENGER_TO_EMBARK);
+        TIME_FOR_A_PASSENGER_TO_DISEMBARK = fileScanner.nextInt();
+        System.out.println("passenger disembarking time: "+ TIME_FOR_A_PASSENGER_TO_DISEMBARK);
+        MEAN_INTERARRIVAL_TIME = fileScanner.nextDouble();
+        System.out.println("mean interarrival time: "+ MEAN_INTERARRIVAL_TIME);
+        System.out.println("_________________");
+
+        //
         between = new double[TOTAL_MAX_CUSTOMERS + 1];
         floor = new int[TOTAL_MAX_CUSTOMERS + 1];
         delivery = new double[TOTAL_MAX_CUSTOMERS + 1];
@@ -447,10 +486,7 @@ public class Simulator {
             System.out.println("k=" + k + ": stop count: " + stop[k] + ", in transport portion: " + operationPortion + "%");
             System.out.println("available time: "+(100-operationPortion)+" %");
             System.out.println("number of times max load occured: "+ max_load[k]);
-            System.out.println("number of times elevator left floor 1: " + load_count[k]);
-            System.out.println("number of total load: "+ total_load[k]);
             System.out.println("number of average load from floor 1: "+ total_load[k]/load_count[k]);
-
         }
     }
 
